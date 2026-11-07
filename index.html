@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Shop Records</title>
+<style>
+:root{--bg:#f6f5f1;--card:#fff;--tx:#1d1d1b;--mut:#6b6a65;--ac:#0f6e56;--ac2:#fff;--bd:#dedcd4;--red:#b3261e;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#161615;--card:#212120;--tx:#f1efe8;--mut:#a3a199;--ac:#3fb592;--ac2:#06231b;--bd:#35342f;--red:#f2b8b5;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#161615;--card:#212120;--tx:#f1efe8;--mut:#a3a199;--ac:#3fb592;--ac2:#06231b;--bd:#35342f;--red:#f2b8b5;color-scheme:dark}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:var(--bg);color:var(--tx);font:16px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding:12px;max-width:560px;margin:0 auto}
+h1{font-size:20px;margin:4px 0 12px}
+.tabs{display:flex;gap:6px;margin-bottom:12px}
+.tabs button{flex:1;padding:10px 2px;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:10px;font-size:14px}
+.tabs button.on{background:var(--ac);color:var(--ac2);border-color:var(--ac)}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px;margin-bottom:12px}
+label{display:block;font-size:13px;color:var(--mut);margin:8px 0 3px}
+input,select,textarea{width:100%;padding:10px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);font-size:16px;font-family:inherit}
+.row{display:flex;gap:8px}.row>div{flex:1}
+.go{width:100%;margin-top:12px;padding:12px;border:0;border-radius:10px;background:var(--ac);color:var(--ac2);font-size:16px;font-weight:600}
+.go.alt{background:var(--card);color:var(--tx);border:1px solid var(--bd)}
+.it{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid var(--bd)}
+.it:last-child{border:0}.it small{color:var(--mut);display:block}
+.it b{white-space:nowrap}
+.x{background:none;border:0;color:var(--red);font-size:13px;padding:2px 0 0 8px}.e{background:none;border:0;color:var(--ac);font-size:13px;padding:2px 0 0}
+.tot{display:flex;justify-content:space-between;padding:5px 0}
+.big{font-size:18px;font-weight:700}
+.hid{display:none}.note{color:var(--mut);font-size:13px}
+.good{color:var(--ac)}.bad{color:var(--red)}
+h2{font-size:15px;margin:14px 0 4px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.chip{padding:8px 12px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);border-radius:20px;font-size:14px}.chip.on{background:var(--ac);color:var(--ac2);border-color:var(--ac)}.chip i{font-style:normal;color:var(--red);margin-left:8px;padding:0 4px}
+@media print{.tabs,.go,.noprint,label,input,select,textarea,.x,.e{display:none!important}body{background:#fff;color:#000}}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+<h1 id="title">Shop Records</h1>
+<div class="tabs">
+<button id="t-sale" class="on">Sale</button><button id="t-purchase">Purchase</button><button id="t-close">Closing</button><button id="t-report">Report</button>
+</div>
+
+<div id="entry">
+<div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><b>Saved items (tap one)</b><button class="e" id="mng">manage</button></div>
+<input id="iq" class="hid" placeholder="Search items" style="margin-top:8px">
+<div class="chips" id="chips"></div></div>
+<div class="card">
+<div class="row"><div><label>Date</label><input type="date" id="date"></div>
+<div><label>Total amount (KWD)</label><input type="number" id="amt" inputmode="decimal" step="0.001" placeholder="0.000"></div></div>
+<div class="row"><div><label>Category</label><input id="cat" list="cats" placeholder="Underwear, Socks..."></div>
+<div><label>Quantity</label><input type="number" id="qty" inputmode="numeric" placeholder="1"></div></div>
+<datalist id="cats"><option>Underwear</option><option>Socks</option><option>Vests</option><option>Other</option></datalist>
+<label>Item / note</label><input id="item" placeholder="e.g. black socks">
+<button class="go alt" id="star" style="margin-top:8px">★ Save item for next time</button>
+<label id="payL">Payment</label><select id="pay"></select>
+<div id="purF" class="hid"><div class="row"><div><label>Supplier</label><input id="sup"></div><div><label>Invoice no.</label><input id="inv"></div></div></div>
+<button class="go" id="save">Save sale</button>
+<button class="go alt hid" id="cancel">Cancel edit</button>
+</div>
+<div class="card"><b id="lt"></b><div id="list"></div></div>
+</div>
+
+<div id="close" class="hid">
+<div class="card">
+<label>Day</label><input type="date" id="cd">
+<div class="row"><div><label>Opening cash in drawer</label><input type="number" id="open" inputmode="decimal" step="0.001"></div>
+<div><label>Counted cash now</label><input type="number" id="cnt" inputmode="decimal" step="0.001"></div></div>
+<div id="cs" style="margin-top:10px"></div>
+<p class="note">Expected cash = opening cash + cash sales − cash purchases. A difference means a mistake or missing entry.</p>
+</div>
+</div>
+
+<div id="report" class="hid">
+<div class="card">
+<label>Month</label><input type="month" id="mon">
+<div id="sum" style="margin-top:10px"></div>
+<button class="go" id="xl">Download Excel (.xlsx)</button>
+<button class="go alt" id="copy">Show / copy report</button>
+<div id="rx" class="hid"><textarea id="rt" rows="6" readonly style="margin-top:8px"></textarea><a id="wa" class="go alt" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none">Send on WhatsApp</a></div>
+<button class="go alt" id="print">Print / Save as PDF</button>
+<p class="note" id="msg"></p>
+</div>
+<div class="card"><label>Search entries</label><input id="q" placeholder="item, supplier, invoice, category"><div id="all"></div></div>
+<div class="card noprint">
+<b>Settings and backup</b>
+<label>Shop name (shown on report)</label><input id="shop">
+<button class="go alt" id="bk">Copy full backup</button>
+<label>Restore: paste backup here</label><textarea id="rs" rows="3"></textarea>
+<button class="go alt" id="rb">Restore from backup</button>
+<p class="note" id="msg2"></p>
+</div>
+</div>
+
+<p class="note noprint">Saved on this phone's browser only. Copy a backup every week.</p>
+
+<script>
+var K1="shop-records-v1",K2="shop-records-x1",type="sale",rows=[],X={shop:"",close:{},items:[]},editId=null,now="sale",sel=null,mg=false;
+function $(i){return document.getElementById(i)}
+function ld(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
+function st(){try{localStorage.setItem(K1,JSON.stringify(rows));localStorage.setItem(K2,JSON.stringify(X))}catch(e){}}
+function today(){var d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function f(n){return (Math.round(n*1000)/1000).toFixed(3)}
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function sum(a){return a.reduce(function(s,r){return s+r.amt},0)}
+function payOpts(t){$("pay").innerHTML=(t=="sale"?["Cash","KNET"]:["Cash","KNET","Bank transfer","Credit (unpaid)"]).map(function(o){return"<option>"+o+"</option>"}).join("")}
+function tab(t){
+ now=t;["sale","purchase","close","report"].forEach(function(x){$("t-"+x).className=x==t?"on":""});
+ $("entry").className=(t=="sale"||t=="purchase")?"":"hid";$("close").className=t=="close"?"":"hid";$("report").className=t=="report"?"":"hid";
+ if(t=="sale"||t=="purchase"){type=t;payOpts(t);$("purF").className=t=="purchase"?"":"hid";clearForm()}
+ render();
+}
+function clearForm(){editId=null;sel=null;["amt","cat","qty","item","sup","inv"].forEach(function(i){$(i).value=""});$("date").value=today();$("save").textContent="Save "+type;$("cancel").className="go alt hid"}
+function row(r,sh){
+ var sub=r.date+" · "+esc(r.pay||"")+(r.cat?" · "+esc(r.cat):"")+(r.qty?" · qty "+r.qty:"")+(r.sup?" · "+esc(r.sup):"")+(r.inv?" #"+esc(r.inv):"");
+ return '<div class="it"><div>'+(sh?(r.type=="sale"?"Sale: ":"Buy: "):"")+esc(r.item||r.cat||"(no note)")+'<small>'+sub+'</small></div><div style="text-align:right"><b>'+f(r.amt)+'</b><br><button class="e" onclick="ed('+r.id+')">edit</button><button class="x" onclick="del('+r.id+')">delete</button></div></div>';
+}
+function del(id){if(!confirm("Delete this entry?"))return;rows=rows.filter(function(r){return r.id!==id});st();render()}
+function ed(id){
+ var r=rows.filter(function(x){return x.id===id})[0];if(!r)return;
+ tab(r.type);editId=id;$("date").value=r.date;$("amt").value=r.amt;$("cat").value=r.cat||"";$("qty").value=r.qty||"";$("item").value=r.item||"";$("sup").value=r.sup||"";$("inv").value=r.inv||"";$("pay").value=r.pay;
+ $("save").textContent="Update "+type;$("cancel").className="go alt";window.scrollTo(0,0);
+}
+function render(){
+ var t=today();
+ var td=rows.filter(function(r){return r.type==type&&r.date==t});
+ $("lt").textContent="Today's "+type+"s: "+f(sum(td))+" KWD";
+ $("list").innerHTML=td.map(function(r){return row(r)}).join("")||'<p class="note">Nothing yet today.</p>';
+ if(now=="sale"||now=="purchase")rChips();if(now=="close")rClose();if(now=="report")rReport();
+}
+function rClose(){
+ var d=$("cd").value||today(),dr=rows.filter(function(r){return r.date==d});
+ var cs=sum(dr.filter(function(r){return r.type=="sale"&&r.pay=="Cash"})),ks=sum(dr.filter(function(r){return r.type=="sale"&&r.pay=="KNET"})),cp=sum(dr.filter(function(r){return r.type=="purchase"&&r.pay=="Cash"}));
+ var c=X.close[d]||{};if(document.activeElement!==$("open")&&c.open!=null)$("open").value=c.open;if(document.activeElement!==$("cnt")&&c.cnt!=null)$("cnt").value=c.cnt;
+ var op=parseFloat($("open").value)||0,cn=parseFloat($("cnt").value),ex=op+cs-cp,h="";
+ h+='<div class="tot"><span>Cash sales</span><span>'+f(cs)+'</span></div><div class="tot"><span>KNET sales</span><span>'+f(ks)+'</span></div><div class="tot big"><span>Total sales</span><span>'+f(cs+ks)+'</span></div><div class="tot"><span>Cash purchases</span><span>'+f(cp)+'</span></div><div class="tot big"><span>Expected cash</span><span>'+f(ex)+'</span></div>';
+ if(!isNaN(cn)){var df=cn-ex;h+='<div class="tot big '+(Math.abs(df)<0.0005?"good":"bad")+'"><span>Difference</span><span>'+(df>0?"+":"")+f(df)+'</span></div>'}
+ $("cs").innerHTML=h;
+}
+function inMonth(){var m=$("mon").value||today().slice(0,7);return rows.filter(function(r){return r.date.slice(0,7)==m})}
+function rReport(){
+ var mr=inMonth(),S=mr.filter(function(r){return r.type=="sale"}),P=mr.filter(function(r){return r.type=="purchase"});
+ var cash=sum(S.filter(function(r){return r.pay=="Cash"})),kn=sum(S.filter(function(r){return r.pay=="KNET"})),ts=cash+kn,tp=sum(P);
+ var h='<div class="tot"><span>Sales – Cash</span><span>'+f(cash)+'</span></div><div class="tot"><span>Sales – KNET</span><span>'+f(kn)+'</span></div><div class="tot big"><span>Total sales</span><span>'+f(ts)+'</span></div><div class="tot big"><span>Total purchases</span><span>'+f(tp)+'</span></div><div class="tot"><span>Sales − purchases (rough)</span><span class="'+(ts-tp>=0?"good":"bad")+'">'+f(ts-tp)+'</span></div>';
+ var cats={};S.forEach(function(r){var c=r.cat||"No category";cats[c]=(cats[c]||0)+r.amt});
+ var ks=Object.keys(cats);if(ks.length){h+="<h2>Sales by category</h2>";ks.forEach(function(k){h+='<div class="tot"><span>'+esc(k)+'</span><span>'+f(cats[k])+'</span></div>'})}
+ $("sum").innerHTML=h;
+ var q=$("q").value.toLowerCase();
+ var a=mr.filter(function(r){return!q||[r.item,r.sup,r.inv,r.cat].join(" ").toLowerCase().indexOf(q)>-1}).sort(function(x,y){return x.date<y.date?1:-1});
+ $("all").innerHTML=a.map(function(r){return row(r,1)}).join("")||'<p class="note">No entries.</p>';
+}
+function rChips(){
+ var q=$("iq").value.toLowerCase(),it=X.items.slice().sort(function(a,b){return a.n.localeCompare(b.n)});
+ $("iq").className=it.length>8?"":"hid";
+ var h="";it.forEach(function(x){if(q&&(x.n+" "+(x.c||"")).toLowerCase().indexOf(q)<0)return;h+='<button class="chip'+(sel===x.n?" on":"")+'" data-n="'+esc(x.n)+'">'+esc(x.n)+(mg?'<i data-d="'+esc(x.n)+'">✕</i>':"")+'</button>'});
+ $("chips").innerHTML=h||'<span class="note">No saved items yet. Save one sale and it appears here.</span>';
+}
+function fd(t){return t=="sale"?"sp":"cp"}
+function upsert(o,force){
+ if(!o.item)return;
+ var u=Math.round(o.amt/(o.qty||1)*1000)/1000,k=fd(o.type),x=X.items.filter(function(i){return i.n.toLowerCase()==o.item.toLowerCase()})[0];
+ if(!x){x={n:o.item,c:o.cat,sp:"",cp:""};X.items.push(x)}
+ if(o.cat&&!x.c)x.c=o.cat;
+ if(force||!x[k])x[k]=u;
+}
+$("chips").onclick=function(e){
+ var d=e.target.getAttribute("data-d");
+ if(d){if(confirm("Remove "+d+" from saved items?")){X.items=X.items.filter(function(i){return i.n!==d});st();rChips()}return}
+ var b=e.target.closest(".chip");if(!b)return;
+ var n=b.getAttribute("data-n"),x=X.items.filter(function(i){return i.n===n})[0];if(!x)return;
+ sel=n;$("item").value=n;$("cat").value=x.c||"";$("qty").value="";$("amt").value=x[fd(type)]||"";rChips();$("qty").focus();
+};
+$("qty").oninput=function(){
+ if(!sel)return;var x=X.items.filter(function(i){return i.n===sel})[0],p=x&&parseFloat(x[fd(type)]);
+ if(p)$("amt").value=Math.round(p*(parseFloat($("qty").value)||1)*1000)/1000;
+};
+$("item").oninput=function(){sel=null;rChips()};
+$("iq").oninput=rChips;
+$("mng").onclick=function(){mg=!mg;$("mng").textContent=mg?"done":"manage";rChips()};
+$("star").onclick=function(){
+ var a=parseFloat($("amt").value),n=$("item").value.trim();
+ if(!n||!(a>0)){alert("Type the item name and the amount first");return}
+ upsert({type:type,item:n,cat:$("cat").value.trim(),amt:a,qty:parseInt($("qty").value)||1},true);st();sel=n;rChips();
+ $("star").textContent="Saved ✓";setTimeout(function(){$("star").textContent="★ Save item for next time"},1500);
+};
+$("save").onclick=function(){
+ var a=parseFloat($("amt").value);if(!(a>0)){alert("Enter the amount");return}
+ var o={id:editId||Date.now(),type:type,date:$("date").value||today(),amt:a,cat:$("cat").value.trim(),qty:parseInt($("qty").value)||"",item:$("item").value.trim(),pay:$("pay").value,sup:$("sup").value.trim(),inv:$("inv").value.trim()};
+ if(editId){rows=rows.map(function(r){return r.id===editId?o:r})}else rows.push(o);
+ upsert(o,false);st();clearForm();render();
+};
+$("cancel").onclick=function(){clearForm()};
+function saveClose(){var d=$("cd").value;X.close[d]={open:$("open").value,cnt:$("cnt").value};st();rClose()}
+$("open").oninput=saveClose;$("cnt").oninput=saveClose;
+$("cd").onchange=function(){$("open").value="";$("cnt").value="";rClose()};
+$("mon").onchange=render;$("q").oninput=render;
+$("shop").oninput=function(){X.shop=$("shop").value;$("title").textContent=X.shop||"Shop Records";st()};
+function cp(s,m,ok,ta){
+ var bad="Copy blocked. Press and hold the text box above, choose Select all, then Copy.";
+ function fb(){try{var t=ta?$(ta):document.createElement("textarea");if(!ta){t.value=s;document.body.appendChild(t)}t.focus();t.select();t.setSelectionRange(0,s.length);var r=document.execCommand("copy");if(!ta)document.body.removeChild(t);$(m).textContent=r?ok:bad}catch(e){$(m).textContent=bad}}
+ try{navigator.clipboard.writeText(s).then(function(){$(m).textContent=ok},fb)}catch(e){fb()}
+}
+$("copy").onclick=function(){
+ var mr=inMonth().sort(function(x,y){return x.date<y.date?-1:1});
+ var s=(X.shop||"Shop")+" – report "+$("mon").value+"\nTotal sales: "+f(sum(mr.filter(function(r){return r.type=="sale"})))+" KWD\nTotal purchases: "+f(sum(mr.filter(function(r){return r.type=="purchase"})))+" KWD\n\nDate\tType\tCategory\tItem\tQty\tAmount KWD\tPayment\tSupplier\tInvoice\n";
+ mr.forEach(function(r){s+=[r.date,r.type,r.cat||"",r.item||"",r.qty||"",f(r.amt),r.pay||"",r.sup||"",r.inv||""].join("\t")+"\n"});
+ $("rt").value=s;$("rx").className="";$("wa").href="https://wa.me/?text="+encodeURIComponent(s);cp(s,"msg","Copied. Paste into Excel, Sheets or WhatsApp.","rt");
+};
+try{claude.use("downloads").then(function(d){if(d)$("xl").className="go"},function(){})}catch(e){}
+function getDL(){try{return claude.use("downloads").catch(function(){return null})}catch(e){return Promise.resolve(null)}}
+function plain(data,name){try{var b=new Blob([data],{type:"application/octet-stream"}),u=URL.createObjectURL(b),a=document.createElement("a");a.href=u;a.download=name;document.body.appendChild(a);a.click();document.body.removeChild(a);setTimeout(function(){URL.revokeObjectURL(u)},4000);$("msg").textContent="Saved to Downloads: "+name}catch(e){$("msg").textContent="Download failed. Use Show / copy report."}}
+$("xl").onclick=function(){
+ var m=$("mon").value||today().slice(0,7),mr=inMonth().sort(function(x,y){return x.date<y.date?-1:1});
+ var S=mr.filter(function(r){return r.type=="sale"}),P=mr.filter(function(r){return r.type=="purchase"});
+ function pay(a,p){return sum(a.filter(function(r){return r.pay==p}))}
+ function aoa(a,sp){var o=[["Date","Category","Item","Qty","Amount KWD","Payment"].concat(sp?["Supplier","Invoice"]:[])];a.forEach(function(r){o.push([r.date,r.cat||"",r.item||"",r.qty||"",r.amt,r.pay||""].concat(sp?[r.sup||"",r.inv||""]:[]))});o.push([]);o.push(["","","","Total",sum(a)]);return o}
+ var sm=[[X.shop||"Shop"],["Month",m],[],["Sales - Cash",pay(S,"Cash")],["Sales - KNET",pay(S,"KNET")],["Total sales",sum(S)],["Total purchases",sum(P)],["Sales - purchases (rough)",sum(S)-sum(P)],[],["Sales by category","KWD"]];
+ var cats={};S.forEach(function(r){var c=r.cat||"No category";cats[c]=(cats[c]||0)+r.amt});Object.keys(cats).forEach(function(k){sm.push([k,cats[k]])});
+ var fn=(X.shop||"Shop").replace(/[^\w\- ]/g,"").trim()+" "+m;
+ var data,name;
+ if(typeof XLSX!=="undefined"){
+  var wb=XLSX.utils.book_new(),w1=XLSX.utils.aoa_to_sheet(sm),w2=XLSX.utils.aoa_to_sheet(aoa(S,0)),w3=XLSX.utils.aoa_to_sheet(aoa(P,1));
+  w1["!cols"]=[{wch:28},{wch:14}];w2["!cols"]=w3["!cols"]=[{wch:12},{wch:14},{wch:24},{wch:6},{wch:12},{wch:16},{wch:16},{wch:12}];
+  XLSX.utils.book_append_sheet(wb,w1,"Summary");XLSX.utils.book_append_sheet(wb,w2,"Sales");XLSX.utils.book_append_sheet(wb,w3,"Purchases");
+  data=XLSX.write(wb,{bookType:"xlsx",type:"array"});name=fn+".xlsx";
+ }else{
+  var csv="\ufeff"+aoa(S,0).concat([[],["PURCHASES"]],aoa(P,1)).map(function(r){return r.map(function(c){return '"'+String(c).replace(/"/g,'""')+'"'}).join(",")}).join("\n");
+  data=csv;name=fn+".csv";
+ }
+ getDL().then(function(d){
+  if(!d){plain(data,name);return}
+  return d.save({filename:name,data:data}).then(function(){$("msg").textContent="Saved. Open it from your Downloads folder."},function(e){$("msg").textContent=e&&e.code=="declined"?"Cancelled.":"Could not save. Use Show / copy report."});
+ }).catch(function(){plain(data,name)});
+};
+$("print").onclick=function(){try{window.print();$("msg").textContent="If nothing opened, use Show / copy report instead, or your browser menu > Print."}catch(e){$("msg").textContent="Printing not available here. Use Show / copy report."}};
+$("bk").onclick=function(){cp(JSON.stringify({rows:rows,X:X}),"msg2","Backup copied. Save it in WhatsApp (to yourself) or Notes.")};
+$("rb").onclick=function(){
+ try{var b=JSON.parse($("rs").value);if(!b.rows||!confirm("Replace all data on this phone with the backup?"))return;rows=b.rows;X=b.X||X;if(!X.items)X.items=[];if(!X.close)X.close={};st();$("shop").value=X.shop||"";$("rs").value="";$("msg2").textContent="Restored.";render()}catch(e){$("msg2").textContent="That backup text is not valid."}
+};
+$("t-sale").onclick=function(){tab("sale")};$("t-purchase").onclick=function(){tab("purchase")};$("t-close").onclick=function(){tab("close")};$("t-report").onclick=function(){tab("report")};
+rows=ld(K1,[]);X=ld(K2,X);if(!X.close)X.close={};if(!X.items)X.items=[];
+$("shop").value=X.shop||"";$("title").textContent=X.shop||"Shop Records";
+$("cd").value=today();$("mon").value=today().slice(0,7);tab("sale");
+</script>
+</body>
+</html>
