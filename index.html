@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Shop Records</title>
+<meta name="theme-color" content="#0f6e56"><meta name="mobile-web-app-capable" content="yes"><link rel="manifest" href="manifest.json"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
 <style>
 :root{--bg:#f6f5f1;--card:#fff;--tx:#1d1d1b;--mut:#6b6a65;--ac:#0f6e56;--ac2:#fff;--bd:#dedcd4;--red:#b3261e;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#161615;--card:#212120;--tx:#f1efe8;--mut:#a3a199;--ac:#3fb592;--ac2:#06231b;--bd:#35342f;--red:#f2b8b5;color-scheme:dark}}
@@ -40,8 +41,33 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--ac);border-color
 .tabs button{flex:1;max-width:120px;display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 2px;border:0;background:none;color:var(--mut);font-size:20px;line-height:1.2;border-radius:12px}
 .tabs button span{font-size:12px}
 .tabs button.on{background:var(--ac);color:var(--ac2)}
+h1{border-left:0;display:inline-block;border-bottom:3px solid var(--ac);padding:0 2px 4px;margin:6px 2px 14px}
+.card{border:1px solid var(--bd);box-shadow:0 1px 3px rgba(0,0,0,.05)}
+input,select,textarea{border:1.5px solid var(--bd)}
+.go.alt{border:1.5px solid var(--bd)}
+.it{border-bottom:1px solid var(--bd)}.it:last-child{border:0}
+#bn{border:1px solid var(--red)}
+.tabs{border-top:1px solid var(--bd);box-shadow:0 -1px 6px rgba(0,0,0,.05)}
 .tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}.tile{background:var(--bg);border:1px solid var(--bd);border-radius:12px;padding:10px}.tile small{color:var(--mut);display:block;font-size:12px}.tile b{font-size:20px}.tile:first-child b{color:var(--ac)}
 .sw{display:flex;gap:10px;margin:6px 0}.sw button{width:36px;height:36px;border-radius:50%;border:3px solid transparent;padding:0}.sw button.on{border-color:var(--tx)}
+:root{--bg:#e9ede8;--bd:#c2c8bd}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bd:#58574f}}
+:root[data-theme="dark"]{--bd:#58574f}
+h1{position:sticky;top:0;z-index:4;display:block;border:0;background:var(--ac);color:var(--ac2);margin:-12px -12px 14px;padding:16px 18px;border-radius:0 0 22px 22px;font-size:22px;box-shadow:0 3px 10px rgba(0,0,0,.18)}
+h1::before{content:"🏪 "}
+.card{border:1.5px solid var(--bd);border-radius:18px;box-shadow:0 3px 10px rgba(0,0,0,.08);padding:14px}
+input,select,textarea{border:1.5px solid var(--bd);background:var(--card);border-radius:12px;padding:12px}
+.go{border-radius:14px;padding:14px;box-shadow:0 3px 8px rgba(0,0,0,.2);font-size:17px}
+.go.alt{border:1.5px solid var(--bd);box-shadow:none}
+.tabs{border-top:1.5px solid var(--bd);box-shadow:0 -3px 12px rgba(0,0,0,.10)}
+.tabs button.on{box-shadow:0 2px 6px rgba(0,0,0,.2)}
+.chip{border:1.5px solid var(--ac);background:var(--card);color:var(--ac);font-weight:600}.chip.on{background:var(--ac);color:var(--ac2)}
+.tile{border:1.5px solid var(--bd);border-top:4px solid var(--ac);background:var(--card)}
+.it{border-bottom:1px dashed var(--bd)}.it:last-child{border:0}.it b{color:var(--ac);font-size:17px}
+.tot{border-bottom:1px solid var(--bd)}.tot:last-child{border:0}
+#rcp{display:none}
+#more button{display:block;width:100%;text-align:left;padding:16px 18px;margin-bottom:10px;background:var(--card);color:var(--tx);border:1.5px solid var(--bd);border-radius:16px;font-size:18px;font-weight:600;box-shadow:0 3px 10px rgba(0,0,0,.08)}#more button span{display:block;font-size:13px;color:var(--mut);font-weight:400;margin-top:2px}
+@media print{body.pr>*:not(#rcp){display:none!important}body.pr #rcp{display:block!important;color:#000;background:#fff;padding:20px}}
 @media print{.tabs,.go,.noprint,label,input,select,textarea,.x,.e{display:none!important}body{background:#fff;color:#000}}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -50,7 +76,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--ac);border-color
 <h1 id="title">Shop Records</h1>
 <div id="bn" class="card hid" style="border-color:var(--red)"><b>Backup needed</b><div class="note" id="bnt"></div><button class="go" id="bnb">Backup now</button></div>
 <div class="tabs">
-<button id="t-sale" class="on">💰<span>Sale</span></button><button id="t-purchase">🛒<span>Purchase</span></button><button id="t-close">🧮<span>Closing</span></button><button id="t-report">📊<span>Report</span></button>
+<button id="t-home" class="on">🏠<span>Home</span></button><button id="t-sale">💰<span>Sale</span></button><button id="t-purchase">🛒<span>Purchase</span></button><button id="t-stock">📦<span>Stock</span></button><button id="t-more">☰<span>More</span></button>
 </div>
 
 <div id="entry">
@@ -65,9 +91,10 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--ac);border-color
 <label>Total amount (KWD)</label><input type="number" id="amt" inputmode="decimal" step="0.001" placeholder="0.000">
 <datalist id="cats"><option>Underwear</option><option>Socks</option><option>Vests</option><option>Other</option></datalist>
 <label>Item / note</label><input id="item" placeholder="e.g. black socks">
-<button class="go alt" id="star" style="margin-top:8px">★ Save item for next time</button>
+<div class="note" id="stk"></div><button class="go alt" id="star" style="margin-top:8px">★ Save item for next time</button>
 <label id="payL">Payment</label><select id="pay"></select>
 <div id="purF" class="hid"><div class="row"><div><label>Supplier</label><input id="sup"></div><div><label>Invoice no.</label><input id="inv"></div></div></div>
+<div id="crF" class="hid"><label>Due date (optional)</label><input type="date" id="due"><div id="pnF" class="hid"><div class="row"><div><label>Paid today (KWD)</label><input type="number" id="pn" inputmode="decimal" step="0.001"></div><div><label>Payment method</label><select id="pm"><option>Cash</option><option>KNET</option><option>Bank Transfer</option></select></div></div><div class="row"><div><label>Payment date</label><input type="date" id="pdt"></div><div><label>Supplier receipt / reference no.</label><input id="prf"></div></div></div><div class="note" id="rem"></div></div>
 <button class="go" id="save">Save sale</button>
 <button class="go alt hid" id="cancel">Cancel edit</button>
 </div>
@@ -95,6 +122,13 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--ac);border-color
 <p class="note" id="msg"></p>
 </div>
 <div class="card"><label>Search entries</label><input id="q" placeholder="item, supplier, invoice, category"><div id="all"></div></div>
+</div>
+<div id="home" class="hid"><div class="tiles" id="hd"></div><div class="card"><b>Last 7 days</b><div id="c1"></div></div><div class="card"><b>Sales: last 6 months</b><div id="c2"></div></div><div class="card"><b>Cash vs KNET (this month)</b><div id="c3"></div></div><div class="card"><b>Top selling items (this month)</b><div id="c4"></div></div><div class="card" id="lowc"></div></div>
+<div id="stock" class="hid"><div class="tiles" id="sk"></div><div class="card"><label>Search items</label><input id="skq" placeholder="Search item or category"><div id="skl"></div><button class="go alt" id="nxl">Export stock to Excel</button></div><div class="card"><b>Add new item</b><label>Name</label><input id="ni"><div class="row"><div><label>Category</label><input id="nc" list="cats"></div><div><label>Opening quantity</label><input id="no" type="number" inputmode="numeric"></div></div><div class="row"><div><label>Cost price</label><input id="ncp" type="number" step="0.001" inputmode="decimal"></div><div><label>Sale price</label><input id="nsp" type="number" step="0.001" inputmode="decimal"></div></div><label>Alert when stock is at or below</label><input id="nmn" type="number" inputmode="numeric"><button class="go" id="nadd">Add item</button></div></div>
+<div id="more" class="hid"><button id="t-sp">💼 Suppliers<span>Credit purchases, payments, receipts</span></button><button id="t-close">🧮 Daily closing<span>Check the cash in the drawer</span></button><button id="t-report">📊 Reports<span>Monthly totals and Excel</span></button><button id="t-set">⚙️ Backup and settings<span>Backup, restore, colour theme</span></button></div>
+<div id="sp" class="hid"><div class="tiles" id="sdash"></div><div class="row"><button class="go" id="sv1">Payables</button><button class="go alt" id="sv2">Receipts</button><button class="go alt" id="sv3">Reports</button></div><div id="v1"></div><div id="v2" class="hid"></div><div id="v3" class="hid"></div><p class="note" id="sm"></p></div>
+<div id="rcp"></div>
+<div id="set" class="hid">
 <div class="card noprint">
 <b>Settings and backup</b>
 <label>Shop name (shown on report)</label><input id="shop">
@@ -109,7 +143,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--ac);border-color
 </div>
 </div>
 
-<p class="note noprint">Data is saved on this phone. Once a week: Report > Save backup file.</p>
+<p class="note noprint">Data is saved on this phone. Once a week: Backup tab > Save backup file.</p>
 
 <script>
 var K1="shop-records-v1",K2="shop-records-x1",type="sale",rows=[],X={shop:"",close:{},items:[]},editId=null,now="sale",sel=null,mg=false;
@@ -120,37 +154,37 @@ function today(){var d=new Date();return d.getFullYear()+"-"+String(d.getMonth()
 function f(n){return (Math.round(n*1000)/1000).toFixed(3)}
 function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
 function sum(a){return a.reduce(function(s,r){return s+r.amt},0)}
-function payOpts(t){$("pay").innerHTML=(t=="sale"?["Cash","KNET"]:["Cash","KNET","Bank transfer","Credit (unpaid)"]).map(function(o){return"<option>"+o+"</option>"}).join("")}
+function payOpts(t){$("pay").innerHTML=(t=="sale"?["Cash","KNET"]:["Cash","KNET","Bank transfer","Credit (unpaid)","Partial Payment"]).map(function(o){return"<option>"+o+"</option>"}).join("")}
 function tab(t){
- now=t;["sale","purchase","close","report"].forEach(function(x){$("t-"+x).className=x==t?"on":""});
- $("entry").className=(t=="sale"||t=="purchase")?"":"hid";$("close").className=t=="close"?"":"hid";$("report").className=t=="report"?"":"hid";
- if(t=="sale"||t=="purchase"){type=t;payOpts(t);$("purF").className=t=="purchase"?"":"hid";clearForm()}
+ now=t;var sb=["sp","close","report","set"].indexOf(t)>-1;["home","sale","purchase","stock","more"].forEach(function(x){$("t-"+x).className=(x==t||(x=="more"&&sb))?"on":""});
+ $("entry").className=(t=="sale"||t=="purchase")?"":"hid";$("close").className=t=="close"?"":"hid";$("report").className=t=="report"?"":"hid";$("set").className=t=="set"?"":"hid";$("sp").className=t=="sp"?"":"hid";$("home").className=t=="home"?"":"hid";$("stock").className=t=="stock"?"":"hid";$("more").className=t=="more"?"":"hid";
+ if(t=="sale"||t=="purchase"){type=t;payOpts(t);$("purF").className=t=="purchase"?"":"hid";var dd=$("date").value;clearForm();if(dd)$("date").value=dd}
  render();
 }
 function clearForm(){editId=null;sel=null;["up","amt","cat","qty","item","sup","inv"].forEach(function(i){$(i).value=""});$("date").value=today();$("save").textContent="Save "+type;$("cancel").className="go alt hid"}
 function row(r,sh){
- var sub=r.date+" · "+esc(r.pay||"")+(r.cat?" · "+esc(r.cat):"")+(r.qty?" · qty "+r.qty:"")+(r.sup?" · "+esc(r.sup):"")+(r.inv?" #"+esc(r.inv):"");
+ var sub=r.date+" · "+esc(r.pay||"")+(isCr(r)?" ("+stat(r)+", out "+f(outOf(r))+")":"")+(r.cat?" · "+esc(r.cat):"")+(r.qty?" · qty "+r.qty:"")+(r.sup?" · "+esc(r.sup):"")+(r.inv?" #"+esc(r.inv):"");
  return '<div class="it"><div>'+(sh?(r.type=="sale"?"Sale: ":"Buy: "):"")+esc(r.item||r.cat||"(no note)")+'<small>'+sub+'</small></div><div style="text-align:right"><b>'+f(r.amt)+'</b><br><button class="e" onclick="ed('+r.id+')">edit</button><button class="x" onclick="del('+r.id+')">delete</button></div></div>';
 }
-function del(id){if(!confirm("Delete this entry?"))return;rows=rows.filter(function(r){return r.id!==id});st();render()}
+function del(id){var rr=rows.filter(function(r){return r.id===id})[0];if(rr&&isCr(rr)&&paidOf(id)>0){alert("This invoice has payments. Reverse the payments first.");return}if(!confirm("Delete this entry?"))return;rows=rows.filter(function(r){return r.id!==id});st();render()}
 function ed(id){
  var r=rows.filter(function(x){return x.id===id})[0];if(!r)return;
- tab(r.type);editId=id;$("date").value=r.date;$("amt").value=r.amt;$("up").value=Math.round(r.amt/(r.qty||1)*1000)/1000;$("cat").value=r.cat||"";$("qty").value=r.qty||"";$("item").value=r.item||"";$("sup").value=r.sup||"";$("inv").value=r.inv||"";$("pay").value=r.pay;
+ tab(r.type);editId=id;$("date").value=r.date;$("amt").value=r.amt;$("up").value=Math.round(r.amt/(r.qty||1)*1000)/1000;$("cat").value=r.cat||"";$("qty").value=r.qty||"";$("item").value=r.item||"";$("sup").value=r.sup||"";$("inv").value=r.inv||"";$("pay").value=r.pay;$("due").value=r.due||"";crUI();
  $("save").textContent="Update "+type;$("cancel").className="go alt";window.scrollTo(0,0);
 }
 function render(){
  var t=today();
- var td=rows.filter(function(r){return r.type==type&&r.date==t});
- $("lt").textContent="Today's "+type+"s: "+f(sum(td))+" KWD";
- $("list").innerHTML=td.map(function(r){return row(r)}).join("")||'<p class="note">Nothing yet today.</p>';
- banner();if(now=="sale"||now=="purchase")rChips();if(now=="close")rClose();if(now=="report")rReport();
+ var sd=$("date").value||t,td=rows.filter(function(r){return r.type==type&&r.date==sd});
+ $("lt").textContent=(sd==t?"Today's ":sd+" ")+type+"s: "+f(sum(td))+" KWD";
+ $("list").innerHTML=td.map(function(r){return row(r)}).join("")||'<p class="note">Nothing yet on this date.</p>';
+ banner();if(now=="sale"||now=="purchase")rChips();crUI();if(now=="home")rHome();if(now=="stock")rStock();if(now=="close")rClose();if(now=="sp")rSp();if(now=="report")rReport();
 }
 function rClose(){
  var d=$("cd").value||today(),dr=rows.filter(function(r){return r.date==d});
- var cs=sum(dr.filter(function(r){return r.type=="sale"&&r.pay=="Cash"})),ks=sum(dr.filter(function(r){return r.type=="sale"&&r.pay=="KNET"})),cp=sum(dr.filter(function(r){return r.type=="purchase"&&r.pay=="Cash"}));
+ var cs=sum(dr.filter(function(r){return r.type=="sale"&&r.pay=="Cash"})),ks=sum(dr.filter(function(r){return r.type=="sale"&&r.pay=="KNET"})),cp=sum(dr.filter(function(r){return r.type=="purchase"&&r.pay=="Cash"}))+sum(PY().filter(function(p){return p.date==d&&p.m=="Cash"}));
  var c=X.close[d]||{};if(document.activeElement!==$("open")&&c.open!=null)$("open").value=c.open;if(document.activeElement!==$("cnt")&&c.cnt!=null)$("cnt").value=c.cnt;
  var op=parseFloat($("open").value)||0,cn=parseFloat($("cnt").value),ex=op+cs-cp,h="";
- h+='<div class="tot"><span>Cash sales</span><span>'+f(cs)+'</span></div><div class="tot"><span>KNET sales</span><span>'+f(ks)+'</span></div><div class="tot big"><span>Total sales</span><span>'+f(cs+ks)+'</span></div><div class="tot"><span>Cash purchases</span><span>'+f(cp)+'</span></div><div class="tot big"><span>Expected cash</span><span>'+f(ex)+'</span></div>';
+ h+='<div class="tot"><span>Cash sales</span><span>'+f(cs)+'</span></div><div class="tot"><span>KNET sales</span><span>'+f(ks)+'</span></div><div class="tot big"><span>Total sales</span><span>'+f(cs+ks)+'</span></div><div class="tot"><span>Cash purchases + cash supplier payments</span><span>'+f(cp)+'</span></div><div class="tot big"><span>Expected cash</span><span>'+f(ex)+'</span></div>';
  if(!isNaN(cn)){var df=cn-ex;h+='<div class="tot big '+(Math.abs(df)<0.0005?"good":"bad")+'"><span>Difference</span><span>'+(df>0?"+":"")+f(df)+'</span></div>'}
  $("cs").innerHTML=h;
 }
@@ -161,7 +195,7 @@ function rReport(){
  var h='<div class="tiles"><div class="tile"><small>Sales</small><b>'+f(ts)+'</b></div><div class="tile"><small>Purchases</small><b>'+f(tp)+'</b></div></div><div class="tot"><span>Sales – Cash</span><span>'+f(cash)+'</span></div><div class="tot"><span>Sales – KNET</span><span>'+f(kn)+'</span></div><div class="tot big"><span>Total sales</span><span>'+f(ts)+'</span></div><div class="tot big"><span>Total purchases</span><span>'+f(tp)+'</span></div><div class="tot"><span>Sales − purchases (rough)</span><span class="'+(ts-tp>=0?"good":"bad")+'">'+f(ts-tp)+'</span></div>';
  var cats={};S.forEach(function(r){var c=r.cat||"No category";cats[c]=(cats[c]||0)+r.amt});
  var ks=Object.keys(cats);if(ks.length){h+="<h2>Sales by category</h2>";ks.forEach(function(k){h+='<div class="tot"><span>'+esc(k)+'</span><span>'+f(cats[k])+'</span></div>'})}
- $("sum").innerHTML=h;
+ var mm=$("mon").value||today().slice(0,7);h+='<div class="tot"><span>Supplier payments (cash out)</span><span>'+f(sum(PY().filter(function(p){return p.date.slice(0,7)==mm})))+'</span></div><div class="tot"><span>Owed to suppliers (total)</span><span>'+f(sups().reduce(function(a,x){return a+x.o},0))+'</span></div>';$("sum").innerHTML=h;
  var q=$("q").value.toLowerCase();
  var a=mr.filter(function(r){return!q||[r.item,r.sup,r.inv,r.cat].join(" ").toLowerCase().indexOf(q)>-1}).sort(function(x,y){return x.date<y.date?1:-1});
  $("all").innerHTML=a.map(function(r){return row(r,1)}).join("")||'<p class="note">No entries.</p>';
@@ -206,8 +240,16 @@ $("star").onclick=function(){
 $("save").onclick=function(){
  var a=parseFloat($("amt").value);if(!(a>0)){alert("Enter the amount");return}
  var o={id:editId||Date.now(),type:type,date:$("date").value||today(),amt:a,cat:$("cat").value.trim(),qty:parseInt($("qty").value)||"",item:$("item").value.trim(),pay:$("pay").value,sup:$("sup").value.trim(),inv:$("inv").value.trim()};
+ var pnv=0;if(type=="sale"&&o.item&&!editId){var se=stockMap()[o.item.toLowerCase()];if(se&&(se.b>0||se.x.os>0)&&se.st<(o.qty||1)&&!confirm("Only "+se.st+" in stock for "+o.item+". Save the sale anyway?"))return}
+ if(type=="purchase"&&CR.indexOf(o.pay)>-1){
+  if(!o.sup){alert("Enter the supplier name for credit purchases");return}
+  o.due=$("due").value||"";
+  if(o.pay=="Partial Payment"&&!editId){pnv=parseFloat($("pn").value)||0;if(!(pnv>0)||pnv>a+0.0004){alert("Paid today must be more than 0 and not more than the total");return}}
+  if(editId&&paidOf(editId)>a+0.0004){alert("Total is less than the payments already made on this invoice");return}
+ }
+ if(editId&&type=="purchase"&&CR.indexOf(o.pay)<0&&paidOf(editId)>0){alert("This invoice has payments. Reverse them first.");return}
  if(editId){rows=rows.map(function(r){return r.id===editId?o:r})}else rows.push(o);
- upsert(o,false);st();clearForm();render();
+ upsert(o,false);if(pnv>0){try{addPay(o.sup,$("pdt").value||o.date,$("pm").value,[{i:o.id,a:pnv}],$("prf").value.trim(),"","Paid at purchase")}catch(e){alert(e)}}st();clearForm();["due","pn","prf","pdt"].forEach(function(i){$(i).value=""});$("date").value=o.date;render();
 };
 $("cancel").onclick=function(){clearForm()};
 function saveClose(){var d=$("cd").value;X.close[d]={open:$("open").value,cnt:$("cnt").value};st();rClose()}
@@ -291,10 +333,143 @@ function theme(){
 $("sw").onclick=function(e){var c=e.target.getAttribute("data-c");if(c){X.c=c;st();theme()}};
 $("md").onchange=function(){X.m=this.value;st();theme()};
 try{matchMedia("(prefers-color-scheme: dark)").addEventListener("change",theme)}catch(e){}
+var CR=["Credit (unpaid)","Partial Payment"],spv=1,spS=null,pfS=null;
+function rd(n){return Math.round(n*1000)/1000}
+function isCr(r){return r.type=="purchase"&&CR.indexOf(r.pay)>-1}
+function PY(){return (X.pays||[]).filter(function(p){return!p.rev})}
+function paidOf(id){var s=0;PY().forEach(function(p){p.al.forEach(function(a){if(a.i===id)s+=a.a})});return rd(s)}
+function outOf(r){return isCr(r)?Math.max(0,rd(r.amt-paidOf(r.id))):0}
+function stat(r){if(outOf(r)<0.0005)return"PAID";if(r.due&&r.due<today())return"OVERDUE";return paidOf(r.id)>0?"PARTIALLY PAID":"UNPAID"}
+function invN(r){return r.inv||("PUR-"+String(r.id).slice(-5))}
+function skey(s){return(s||"").trim().toLowerCase()}
+function CRs(){return rows.filter(isCr)}
+function byDate(a,b){return a.date<b.date?-1:a.date>b.date?1:0}
+function sups(){var m={};CRs().forEach(function(r){var k=skey(r.sup);if(!m[k])m[k]={n:r.sup,k:k,inv:[],t:0,p:0,o:0,od:0,u:0,lp:""};var s=m[k],o=outOf(r);s.inv.push(r);s.t+=r.amt;s.p+=paidOf(r.id);s.o+=o;if(o>0){s.u++;if(stat(r)=="OVERDUE")s.od+=o}});
+ PY().forEach(function(p){var s=m[skey(p.sup)];if(s&&p.date>s.lp)s.lp=p.date});return Object.keys(m).map(function(k){return m[k]})}
+function ivs(p){return p.al.map(function(a){var r=rows.filter(function(x){return x.id===a.i})[0];return(r?invN(r):"?")+": "+f(a.a)}).join(", ")}
+function addPay(sup,date,method,al,sref,ref,notes){
+ var tot=0;al.forEach(function(a){var r=rows.filter(function(x){return x.id===a.i})[0];if(!r||!isCr(r))throw"Invoice not found";if(!(a.a>0))throw"Invalid amount";if(a.a>outOf(r)+0.0004)throw"Payment is more than the outstanding balance of invoice "+invN(r);tot+=a.a});
+ if(!(tot>0))throw"Enter an amount";
+ X.pays=X.pays||[];
+ var p={id:Date.now()+X.pays.length,rid:"PR-"+String(X.pays.length+1).padStart(4,"0"),date:date,sup:sup,sref:sref||"",ref:ref||"",m:method,amt:rd(tot),notes:notes||"",al:al.map(function(a){return{i:a.i,a:rd(a.a)}}),rev:false};
+ X.pays.push(p);var s=sups().filter(function(x){return x.k==skey(sup)})[0];p.bal=s?rd(s.o):0;st();return p}
+function revPay(id){var p=(X.pays||[]).filter(function(x){return x.id===id})[0];if(!p||p.rev)return;if(!confirm("Reverse payment "+p.rid+"? The supplier balance will go back up. The receipt stays in history marked REVERSED."))return;p.rev=true;p.revDate=today();st();rSp()}
+function crUI(){stkNote();var t=type=="purchase"?$("pay").value:"",c=CR.indexOf(t)>-1;$("crF").className=c?"":"hid";$("pnF").className=(t=="Partial Payment"&&!editId)?"":"hid";
+ var pd=editId?paidOf(editId):(t=="Partial Payment"?(parseFloat($("pn").value)||0):0);$("rem").textContent=c?"Outstanding after this: "+f(Math.max(0,(parseFloat($("amt").value)||0)-pd))+" KWD":""}
+function tl(a,n){return'<div class="tile"><small>'+a+'</small><b>'+f(n)+'</b></div>'}
+function rSp(){
+ var m=today().slice(0,7),S=sups(),tt=0,od=0,un=0;S.forEach(function(s){tt+=s.o;od+=s.od;un+=s.u});
+ $("sdash").innerHTML=tl("Total outstanding",tt)+tl("Credit purchases (month)",sum(CRs().filter(function(r){return r.date.slice(0,7)==m})))+tl("Supplier payments (month)",sum(PY().filter(function(p){return p.date.slice(0,7)==m})))+tl("Overdue",od)+'<div class="tile"><small>Unpaid invoices</small><b>'+un+'</b></div>';
+ [1,2,3].forEach(function(i){$("v"+i).className=i==spv?"":"hid";$("sv"+i).className="go"+(i==spv?"":" alt")});
+ if(spv==1)v1(S);if(spv==2)v2();if(spv==3)v3()}
+function hist(s){var h='<h2>Invoices</h2>';
+ s.inv.sort(byDate).forEach(function(r){h+='<div class="it"><div>'+esc(invN(r))+'<small>'+r.date+(r.due?' · due '+r.due:'')+' · '+stat(r)+' · paid '+f(paidOf(r.id))+'</small></div><b>'+f(r.amt)+'<br><small>out '+f(outOf(r))+'</small></b></div>'});
+ return h+'<h2>Payments</h2>'+((X.pays||[]).filter(function(p){return skey(p.sup)==s.k}).map(rc).join("")||'<p class="note">No payments yet.</p>')}
+function rc(p){return'<div class="it"><div>'+p.rid+(p.rev?' <span class="bad">REVERSED</span>':'')+'<small>'+p.date+' · '+esc(p.m)+(p.sref?' · supplier receipt '+esc(p.sref):'')+(p.ref?' · ref '+esc(p.ref):'')+'</small><small>'+esc(p.sup)+' · '+esc(ivs(p))+(p.notes?' · '+esc(p.notes):'')+'</small><small>Balance after: '+f(p.bal||0)+'</small></div><div style="text-align:right"><b>'+f(p.amt)+'</b><br><button class="e" data-pr="'+p.id+'">print</button>'+(p.rev?'':'<button class="x" data-rv="'+p.id+'">reverse</button>')+'</div></div>'}
+function v1(S){
+ if(pfS!==null){pform();return}
+ var h="";S.filter(function(s){return s.o>0.0004||s.k==spS}).forEach(function(s){
+  h+='<div class="card"><b>'+esc(s.n)+'</b><div class="tot"><span>Total credit purchases</span><span>'+f(s.t)+'</span></div><div class="tot"><span>Total paid</span><span>'+f(s.p)+'</span></div><div class="tot big"><span>Outstanding</span><span class="bad">'+f(s.o)+'</span></div><div class="tot"><span>Last payment</span><span>'+(s.lp||"-")+'</span></div><div class="tot"><span>Unpaid invoices</span><span>'+s.u+'</span></div><div class="row"><button class="go" data-pay="'+esc(s.k)+'">Pay Supplier</button><button class="go alt" data-open="'+esc(s.k)+'">'+(spS==s.k?"Close":"History")+'</button></div>'+(spS==s.k?hist(s):"")+'</div>'});
+ $("v1").innerHTML=h||'<div class="card note">No outstanding supplier balances. Record a purchase as Credit or Partial Payment to start.</div>'}
+function pform(){
+ var s=sups().filter(function(x){return x.k==pfS})[0];if(!s){pfS=null;rSp();return}
+ var h='<div class="card"><b>Pay supplier: '+esc(s.n)+'</b><p class="note">Outstanding: '+f(s.o)+' KWD</p><div class="row"><div><label>Payment date</label><input type="date" id="pd" value="'+today()+'"></div><div><label>Amount paying (KWD)</label><input type="number" id="pa" inputmode="decimal" step="0.001"></div></div><label>Method</label><select id="pmt"><option>Cash</option><option>KNET</option><option>Bank Transfer</option></select><div class="row"><div><label>Supplier receipt no.</label><input id="psr"></div><div><label>Payment reference (optional)</label><input id="prr"></div></div><label>Notes</label><input id="pnt"><h2>Settle which invoices? (type amount per invoice, or enter the total above and it fills oldest first)</h2>';
+ s.inv.filter(function(r){return outOf(r)>0}).sort(byDate).forEach(function(r){h+='<div class="it"><div>'+esc(invN(r))+'<small>'+r.date+(r.due?' · due '+r.due:'')+' · '+stat(r)+' · outstanding '+f(outOf(r))+'</small></div><input class="al" data-i="'+r.id+'" data-o="'+outOf(r)+'" type="number" inputmode="decimal" step="0.001" style="width:110px"></div>'});
+ $("v1").innerHTML=h+'<button class="go" id="psv">Save payment</button><button class="go alt" id="pcn">Cancel</button></div>'}
+function savePay(){
+ var s=sups().filter(function(x){return x.k==pfS})[0],al=[];
+ document.querySelectorAll(".al").forEach(function(i){var a=parseFloat(i.value)||0;if(a>0)al.push({i:+i.dataset.i,a:a})});
+ try{var p=addPay(s.n,$("pd").value||today(),$("pmt").value,al,$("psr").value.trim(),$("prr").value.trim(),$("pnt").value.trim());pfS=null;rSp();$("sm").textContent="Payment saved: "+p.rid+". Balance now "+f(p.bal)+" KWD."}catch(e){alert(e)}}
+function fp(){var q=$("rq").value.toLowerCase(),a=$("rf1").value,b=$("rf2").value;return(X.pays||[]).filter(function(p){return(!q||(p.rid+" "+p.sref+" "+p.ref+" "+p.sup).toLowerCase().indexOf(q)>-1)&&(!a||p.date>=a)&&(!b||p.date<=b)})}
+function v2(){
+ if(!$("rq"))$("v2").innerHTML='<div class="card"><label>Search receipt no. or supplier</label><input id="rq"><div class="row"><div><label>From</label><input type="date" id="rf1"></div><div><label>To</label><input type="date" id="rf2"></div></div><button class="go alt" id="rx2">Export payments to Excel</button><div id="rl"></div></div>';
+ $("rl").innerHTML=fp().slice().reverse().map(rc).join("")||'<p class="note">No receipts.</p>'}
+function rep(k,m){
+ var inM=function(d){return d.slice(0,7)==m},T=0,i;
+ if(k=="c"){var a=[["Date","Supplier","Invoice","Purchase","Paid","Outstanding","Due","Status"]];CRs().filter(function(r){return inM(r.date)}).sort(byDate).forEach(function(r){T+=r.amt;a.push([r.date,r.sup,invN(r),r.amt,paidOf(r.id),outOf(r),r.due||"",stat(r)])});a.push(["TOTAL","","",rd(T)]);return a}
+ if(k=="p"){var b=[["Date","Supplier","Receipt ID","Supplier receipt","Invoices","Amount","Method"]];PY().filter(function(p){return inM(p.date)}).sort(byDate).forEach(function(p){T+=p.amt;b.push([p.date,p.sup,p.rid,p.sref,ivs(p),p.amt,p.m])});b.push(["TOTAL","","","","",rd(T)]);return b}
+ var c=[["Supplier","Credit purchases","Paid","Outstanding","Overdue"]],O=0,D=0;sups().filter(function(s){return s.o>0.0004}).forEach(function(s){O+=s.o;D+=s.od;c.push([s.n,rd(s.t),rd(s.p),rd(s.o),rd(s.od)])});c.push(["TOTAL","","",rd(O),rd(D)]);return c}
+function tbl(d){return'<table style="width:100%;border-collapse:collapse;font-size:13px"><tr>'+d[0].map(function(c){return'<th style="text-align:left;padding:4px;border-bottom:1.5px solid var(--bd)">'+c+'</th>'}).join("")+'</tr>'+d.slice(1).map(function(r){return'<tr>'+r.map(function(c){return'<td style="padding:4px;border-bottom:1px solid var(--bd)">'+(typeof c=="number"?f(c):esc(c))+'</td>'}).join("")+'</tr>'}).join("")+'</table>'}
+function v3(){
+ if(!$("smon"))$("v3").innerHTML='<div class="card"><label>Report</label><select id="rk"><option value="c">Credit Purchase Report</option><option value="p">Supplier Payment Report</option><option value="o">Supplier Outstanding Report (as of today)</option></select><label>Month</label><input type="month" id="smon" value="'+today().slice(0,7)+'"><button class="go" id="rxl">Export Excel</button><button class="go alt" id="rpr">Print / Save as PDF</button><div class="sec" id="rtb"></div></div>';
+ $("rtb").innerHTML=tbl(rep($("rk").value,$("smon").value||today().slice(0,7)))}
+function exX(name,sh){var data,fn=name.replace(/[^\w\- ]/g,"");
+ if(typeof XLSX!=="undefined"){var wb=XLSX.utils.book_new();sh.forEach(function(s){var w=XLSX.utils.aoa_to_sheet(s[1]);w["!cols"]=s[1][0].map(function(){return{wch:18}});XLSX.utils.book_append_sheet(wb,w,s[0])});data=XLSX.write(wb,{bookType:"xlsx",type:"array"});fn+=".xlsx"}
+ else{data="\ufeff"+sh[0][1].map(function(r){return r.map(function(c){return'"'+String(c).replace(/"/g,'""')+'"'}).join(",")}).join("\n");fn+=".csv"}
+ getDL().then(function(d){if(!d){plain(data,fn);return}return d.save({filename:fn,data:data}).then(function(){$("sm").textContent="Saved: "+fn},function(){})}).catch(function(){plain(data,fn)})}
+function prt(html){$("rcp").innerHTML=html;document.body.className="pr";try{window.print()}catch(e){$("sm").textContent="Printing blocked here. Use Export to Excel."}setTimeout(function(){document.body.className=""},1000)}
+function printRc(id){var p=(X.pays||[]).filter(function(x){return x.id===id})[0];if(!p)return;
+ prt('<h2>'+esc(X.shop||"Shop")+' – Payment Receipt</h2><p>Receipt ID: <b>'+p.rid+'</b><br>Date: '+p.date+'<br>Supplier: '+esc(p.sup)+'<br>Supplier receipt no.: '+esc(p.sref||"-")+'<br>Reference: '+esc(p.ref||"-")+'<br>Invoices: '+esc(ivs(p))+'<br>Method: '+esc(p.m)+'<br>Amount paid: <b>'+f(p.amt)+' KWD</b><br>Balance after: '+f(p.bal||0)+' KWD'+(p.rev?'<br><b>REVERSED</b>':'')+'<br>Notes: '+esc(p.notes||"-")+'</p>')}
+$("pay").onchange=crUI;$("amt").addEventListener("input",crUI);$("pn").addEventListener("input",crUI);
+$("sp").addEventListener("click",function(e){var t=e.target,d=t.dataset||{};
+ if(d.pay!==undefined){pfS=d.pay;rSp()}else if(d.open!==undefined){spS=spS==d.open?null:d.open;rSp()}
+ else if(d.pr)printRc(+d.pr);else if(d.rv)revPay(+d.rv);
+ else if(t.id=="pcn"){pfS=null;rSp()}else if(t.id=="psv")savePay();
+ else if(t.id&&/^sv[123]$/.test(t.id)){spv=+t.id[2];pfS=null;rSp()}
+ else if(t.id=="rx2"){var a=[["Date","Supplier","Receipt ID","Supplier receipt","Reference","Invoices","Amount","Method","Reversed","Notes"]];fp().forEach(function(p){a.push([p.date,p.sup,p.rid,p.sref,p.ref,ivs(p),p.amt,p.m,p.rev?"YES":"",p.notes])});exX("Supplier payments",[["Payments",a]])}
+ else if(t.id=="rxl"){var k=$("rk").value,m=$("smon").value||today().slice(0,7);exX("Supplier report "+k+" "+m,[["Report",rep(k,m)]])}
+ else if(t.id=="rpr")prt('<h2>'+esc(X.shop||"Shop")+'</h2>'+$("rtb").innerHTML)});
+function spIn(e){var t=e.target;
+ if(t.id=="pa"){var left=parseFloat(t.value)||0;document.querySelectorAll(".al").forEach(function(i){var o=parseFloat(i.dataset.o),x=Math.min(left,o);i.value=x>0?rd(x):"";if(x>0)left-=x})}
+ else if(t.className=="al"){var s=0;document.querySelectorAll(".al").forEach(function(i){s+=parseFloat(i.value)||0});$("pa").value=s?rd(s):""}
+ else if(t.id=="rq"||t.id=="rf1"||t.id=="rf2")v2();else if(t.id=="rk"||t.id=="smon")v3()}
+$("sp").addEventListener("input",spIn);$("sp").addEventListener("change",spIn);
+$("t-sp").onclick=function(){tab("sp")};
+function qOf(r){return r.qty>0?r.qty:1}
+function stockMap(){var m={};X.items.forEach(function(x){m[x.n.toLowerCase()]={x:x,st:x.os||0,b:0,s:0,lb:""}});
+ rows.forEach(function(r){var e=m[(r.item||"").toLowerCase()];if(!e)return;var q=qOf(r);if(r.type=="purchase"){e.st+=q;e.b+=q;if(r.date>e.lb)e.lb=r.date}else{e.st-=q;e.s+=q}});
+ (X.adj||[]).forEach(function(a){var e=m[a.k];if(e)e.st+=a.q});return m}
+function isLow(e){return e.x.mn>0&&e.st<=e.x.mn}
+function stkNote(){var n=($("item").value||"").trim().toLowerCase(),e=n&&stockMap()[n];$("stk").textContent=e?"In stock: "+e.st+(isLow(e)?" (low)":""):(n?"New item: it will be added to Stock when you save.":"")}
+$("item").addEventListener("input",stkNote);
+var skS=null;
+function skList(){var m=stockMap(),q=($("skq").value||"").toLowerCase(),h="";
+ Object.keys(m).sort().filter(function(k){return!q||(m[k].x.n+" "+(m[k].x.c||"")).toLowerCase().indexOf(q)>-1}).forEach(function(k){var e=m[k],x=e.x,bad=e.st<=0||isLow(e);
+  h+='<div class="it" data-sk="'+esc(k)+'" style="cursor:pointer"><div>'+esc(x.n)+'<small>'+esc(x.c||"No category")+(x.cp?' · cost '+f(x.cp):'')+(e.lb?' · bought '+e.lb:'')+(isLow(e)?' · LOW':'')+'</small></div><b class="'+(bad?"bad":"good")+'" style="font-size:20px">'+e.st+'</b></div>';
+  if(skS==k)h+='<div class="card" style="margin:6px 0"><div class="row"><div><label>Counted quantity now</label><input id="ecs" type="number" inputmode="numeric" placeholder="'+e.st+'"></div><div><label>Alert at or below</label><input id="emn" type="number" inputmode="numeric" value="'+(x.mn||"")+'"></div></div><div class="row"><div><label>Cost price</label><input id="ecp" type="number" step="0.001" inputmode="decimal" value="'+(x.cp||"")+'"></div><div><label>Sale price</label><input id="esp" type="number" step="0.001" inputmode="decimal" value="'+(x.sp||"")+'"></div></div><p class="note">Bought '+e.b+' · Sold '+e.s+(x.os?' · Opening '+x.os:'')+'. Enter the counted quantity to correct the stock.</p><button class="go" id="esv">Save item</button></div>'});
+ $("skl").innerHTML=h||'<p class="note">No items yet. Items are added automatically when you record a sale or purchase, or add one below.</p>'}
+function rStock(){var m=stockMap(),k=Object.keys(m),v=0,lw=0,z=0;k.forEach(function(i){var e=m[i];if(e.st>0&&e.x.cp)v+=e.st*e.x.cp;if(isLow(e))lw++;if(e.st<=0)z++});
+ $("sk").innerHTML=tl("Stock value (at cost)",v)+'<div class="tile"><small>Items</small><b>'+k.length+'</b></div><div class="tile"><small>Low stock</small><b>'+lw+'</b></div><div class="tile"><small>Out of stock</small><b>'+z+'</b></div>';skList()}
+function stockAoa(){var m=stockMap(),a=[["Item","Category","Bought","Sold","In stock","Cost price","Sale price","Stock value","Last bought"]];Object.keys(m).sort().forEach(function(k){var e=m[k],x=e.x;a.push([x.n,x.c||"",e.b,e.s,e.st,x.cp||"",x.sp||"",e.st>0&&x.cp?rd(e.st*x.cp):0,e.lb])});return a}
+$("stock").addEventListener("click",function(e){var t=e.target,r=t.closest&&t.closest("[data-sk]");
+ if(t.id=="esv"){var m=stockMap(),k=skS,en=m[k],cv=$("ecs").value;if(cv!==""){var d=parseInt(cv)-en.st;if(d)(X.adj=X.adj||[]).push({id:Date.now(),k:k,q:d,date:today(),note:"Stock count"})}
+  en.x.mn=parseInt($("emn").value)||0;en.x.cp=parseFloat($("ecp").value)||"";en.x.sp=parseFloat($("esp").value)||"";st();skS=null;rStock()}
+ else if(t.id=="nadd"){var n=$("ni").value.trim();if(!n){alert("Enter the item name");return}if(X.items.some(function(i){return i.n.toLowerCase()==n.toLowerCase()})){alert("This item already exists");return}
+  X.items.push({n:n,c:$("nc").value.trim(),sp:parseFloat($("nsp").value)||"",cp:parseFloat($("ncp").value)||"",os:parseInt($("no").value)||0,mn:parseInt($("nmn").value)||0});st();["ni","nc","no","ncp","nsp","nmn"].forEach(function(i){$(i).value=""});rStock()}
+ else if(t.id=="nxl")exX("Stock",[["Stock",stockAoa()]]);
+ else if(r&&!t.closest(".card .card")&&t.tagName!="INPUT"){skS=skS==r.dataset.sk?null:r.dataset.sk;skList()}});
+$("skq").addEventListener("input",skList);
+function dAgo(n){var d=new Date();d.setDate(d.getDate()-n);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function barChart(el,labels,series){var W=320,H=170,pb=22,pt=8,mx=1,h="";series.forEach(function(s){s.v.forEach(function(x){if(x>mx)mx=x})});
+ var gw=W/labels.length,bw=Math.min(20,gw/(series.length+0.6));
+ labels.forEach(function(l,i){series.forEach(function(s,j){var bh=(H-pb-pt)*s.v[i]/mx,x=i*gw+(gw-bw*series.length)/2+j*bw;h+='<rect x="'+x+'" y="'+(H-pb-bh)+'" width="'+(bw-2)+'" height="'+Math.max(bh,1)+'" rx="3" style="fill:'+s.c+'"/>'});h+='<text x="'+(i*gw+gw/2)+'" y="'+(H-7)+'" text-anchor="middle" font-size="10" style="fill:var(--mut)">'+l+'</text>'});
+ h+='<line x1="0" x2="'+W+'" y1="'+(H-pb)+'" y2="'+(H-pb)+'" style="stroke:var(--bd)"/>';
+ el.innerHTML='<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto">'+h+'</svg><div class="note">'+series.map(function(s){return'<span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:'+s.c+';margin:0 4px 0 0"></span>'+s.n+' &nbsp; '}).join("")+'Highest bar: '+f(mx)+' KWD</div>'}
+function donut(el,parts){var tot=0,C=2*Math.PI*40,o=0,h='<circle cx="60" cy="60" r="40" fill="none" stroke-width="18" style="stroke:var(--bd)"/>';parts.forEach(function(p){tot+=p.v});
+ if(tot>0)parts.forEach(function(p){var l=C*p.v/tot;h+='<circle cx="60" cy="60" r="40" fill="none" stroke-width="18" stroke-dasharray="'+l+' '+(C-l)+'" stroke-dashoffset="'+(-o)+'" transform="rotate(-90 60 60)" style="stroke:'+p.c+'"/>';o+=l});
+ el.innerHTML='<div style="display:flex;align-items:center;gap:16px"><svg viewBox="0 0 120 120" width="120" height="120">'+h+'</svg><div style="flex:1">'+parts.map(function(p){return'<div class="tot"><span><i style="display:inline-block;width:10px;height:10px;border-radius:3px;background:'+p.c+';margin-right:6px"></i>'+p.n+'</span><b>'+f(p.v)+'</b></div>'}).join("")+'</div></div>'}
+function rHome(){var t=today(),m=t.slice(0,7),S=rows.filter(function(r){return r.type=="sale"}),P=rows.filter(function(r){return r.type=="purchase"}),inM=function(r){return r.date.slice(0,7)==m},sm=stockMap(),pf=0,sv=0,lw=0;
+ S.filter(inM).forEach(function(r){var e=sm[(r.item||"").toLowerCase()];if(e&&e.x.cp)pf+=r.amt-qOf(r)*e.x.cp});
+ Object.keys(sm).forEach(function(k){var e=sm[k];if(e.st>0&&e.x.cp)sv+=e.st*e.x.cp;if(isLow(e))lw++});
+ var ow=0,od=0;sups().forEach(function(s){ow+=s.o;od+=s.od});
+ $("hd").innerHTML=tl("Today's sales",sum(S.filter(function(r){return r.date==t})))+tl("Sales this month",sum(S.filter(inM)))+tl("Purchases this month",sum(P.filter(inM)))+tl("Est. profit (items with cost)",pf)+tl("Stock value",sv)+'<div class="tile"><small>Low stock items</small><b>'+lw+'</b></div>'+tl("Owed to suppliers",ow)+tl("Overdue to suppliers",od);
+ var L=[],A=[],B=[],i;for(i=6;i>=0;i--){var d=dAgo(i);L.push(new Date(d+"T12:00:00").toLocaleDateString("en",{weekday:"short"}));A.push(sum(S.filter(function(r){return r.date==d})));B.push(sum(P.filter(function(r){return r.date==d})))}
+ barChart($("c1"),L,[{n:"Sales",v:A,c:"var(--ac)"},{n:"Purchases",v:B,c:"#d98324"}]);
+ var ML=[],MV=[],now=new Date();for(i=5;i>=0;i--){var dt=new Date(now.getFullYear(),now.getMonth()-i,1),k=dt.getFullYear()+"-"+String(dt.getMonth()+1).padStart(2,"0");ML.push(dt.toLocaleDateString("en",{month:"short"}));MV.push(sum(S.filter(function(r){return r.date.slice(0,7)==k})))}
+ barChart($("c2"),ML,[{n:"Sales",v:MV,c:"var(--ac)"}]);
+ donut($("c3"),[{n:"Cash",v:sum(S.filter(inM).filter(function(r){return r.pay=="Cash"})),c:"var(--ac)"},{n:"KNET",v:sum(S.filter(inM).filter(function(r){return r.pay=="KNET"})),c:"#d98324"}]);
+ var g={};S.filter(inM).forEach(function(r){var n=r.item||r.cat||"Other";g[n]=(g[n]||0)+r.amt});var top=Object.keys(g).sort(function(a,b){return g[b]-g[a]}).slice(0,5),mx=top.length?g[top[0]]:1;
+ $("c4").innerHTML=top.map(function(n){return'<div style="margin:8px 0"><div class="tot" style="border:0;padding:0"><span>'+esc(n)+'</span><b>'+f(g[n])+'</b></div><div style="height:8px;border-radius:4px;background:var(--bd)"><div style="height:8px;border-radius:4px;background:var(--ac);width:'+Math.round(100*g[n]/mx)+'%"></div></div></div>'}).join("")||'<p class="note">No sales this month yet.</p>';
+ var low=Object.keys(sm).filter(function(k){return isLow(sm[k])||sm[k].st<=0&&(sm[k].b>0||sm[k].x.os>0)});
+ $("lowc").innerHTML='<b>Stock alerts</b>'+(low.map(function(k){var e=sm[k];return'<div class="it"><div>'+esc(e.x.n)+'</div><b class="bad">'+e.st+'</b></div>'}).join("")||'<p class="note">All items are stocked well ✓</p>')}
+$("t-home").onclick=function(){tab("home")};$("t-stock").onclick=function(){tab("stock")};$("t-more").onclick=function(){tab("more")};
+try{if("serviceWorker" in navigator&&/^https?:/.test(location.protocol))navigator.serviceWorker.register("sw.js").catch(function(){})}catch(e){}
+$("t-set").onclick=function(){tab("set")};
+$("date").onchange=render;
 $("t-sale").onclick=function(){tab("sale")};$("t-purchase").onclick=function(){tab("purchase")};$("t-close").onclick=function(){tab("close")};$("t-report").onclick=function(){tab("report")};
 rows=ld(K1,[]);X=ld(K2,X);if(!X.close)X.close={};if(!X.items)X.items=[];theme();
 $("shop").value=X.shop||"";$("title").textContent=X.shop||"Shop Records";
-$("cd").value=today();$("mon").value=today().slice(0,7);tab("sale");
+$("cd").value=today();$("mon").value=today().slice(0,7);tab("home");
 </script>
 </body>
 </html>
