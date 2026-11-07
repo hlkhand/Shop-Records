@@ -30,14 +30,27 @@ input,select,textarea{width:100%;padding:10px;border:1px solid var(--bd);border-
 .good{color:var(--ac)}.bad{color:var(--red)}
 h2{font-size:15px;margin:14px 0 4px}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.chip{padding:8px 12px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);border-radius:20px;font-size:14px}.chip.on{background:var(--ac);color:var(--ac2);border-color:var(--ac)}.chip i{font-style:normal;color:var(--red);margin-left:8px;padding:0 4px}
+body{padding-bottom:104px}
+h1{font-size:22px;font-weight:700;border-left:5px solid var(--ac);padding-left:10px;margin:6px 2px 14px}
+.card{border-radius:16px;box-shadow:0 1px 4px rgba(0,0,0,.07)}
+input,select,textarea{border-radius:10px}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--ac);border-color:transparent}
+.go{border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.15)}.go:active{transform:scale(.98)}
+.tabs{position:fixed;left:0;right:0;bottom:0;margin:0;justify-content:center;gap:6px;padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));background:var(--card);border-top:1px solid var(--bd);z-index:5}
+.tabs button{flex:1;max-width:120px;display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 2px;border:0;background:none;color:var(--mut);font-size:20px;line-height:1.2;border-radius:12px}
+.tabs button span{font-size:12px}
+.tabs button.on{background:var(--ac);color:var(--ac2)}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}.tile{background:var(--bg);border:1px solid var(--bd);border-radius:12px;padding:10px}.tile small{color:var(--mut);display:block;font-size:12px}.tile b{font-size:20px}.tile:first-child b{color:var(--ac)}
+.sw{display:flex;gap:10px;margin:6px 0}.sw button{width:36px;height:36px;border-radius:50%;border:3px solid transparent;padding:0}.sw button.on{border-color:var(--tx)}
 @media print{.tabs,.go,.noprint,label,input,select,textarea,.x,.e{display:none!important}body{background:#fff;color:#000}}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
 <h1 id="title">Shop Records</h1>
+<div id="bn" class="card hid" style="border-color:var(--red)"><b>Backup needed</b><div class="note" id="bnt"></div><button class="go" id="bnb">Backup now</button></div>
 <div class="tabs">
-<button id="t-sale" class="on">Sale</button><button id="t-purchase">Purchase</button><button id="t-close">Closing</button><button id="t-report">Report</button>
+<button id="t-sale" class="on">💰<span>Sale</span></button><button id="t-purchase">🛒<span>Purchase</span></button><button id="t-close">🧮<span>Closing</span></button><button id="t-report">📊<span>Report</span></button>
 </div>
 
 <div id="entry">
@@ -85,14 +98,18 @@ h2{font-size:15px;margin:14px 0 4px}
 <div class="card noprint">
 <b>Settings and backup</b>
 <label>Shop name (shown on report)</label><input id="shop">
-<button class="go alt" id="bk">Copy full backup</button>
+<label>Colour theme</label><div class="sw" id="sw"></div>
+<label>Mode</label><select id="md"><option value="auto">Automatic</option><option value="light">Light</option><option value="dark">Dark</option></select>
+<button class="go" id="bf">Save backup file to phone</button>
+<label>Restore from a backup file</label><input type="file" id="rf">
+<button class="go alt" id="bk">Copy backup text (for WhatsApp)</button>
 <label>Restore: paste backup here</label><textarea id="rs" rows="3"></textarea>
 <button class="go alt" id="rb">Restore from backup</button>
 <p class="note" id="msg2"></p>
 </div>
 </div>
 
-<p class="note noprint">Saved on this phone's browser only. Copy a backup every week.</p>
+<p class="note noprint">Data is saved on this phone. Once a week: Report > Save backup file.</p>
 
 <script>
 var K1="shop-records-v1",K2="shop-records-x1",type="sale",rows=[],X={shop:"",close:{},items:[]},editId=null,now="sale",sel=null,mg=false;
@@ -126,7 +143,7 @@ function render(){
  var td=rows.filter(function(r){return r.type==type&&r.date==t});
  $("lt").textContent="Today's "+type+"s: "+f(sum(td))+" KWD";
  $("list").innerHTML=td.map(function(r){return row(r)}).join("")||'<p class="note">Nothing yet today.</p>';
- if(now=="sale"||now=="purchase")rChips();if(now=="close")rClose();if(now=="report")rReport();
+ banner();if(now=="sale"||now=="purchase")rChips();if(now=="close")rClose();if(now=="report")rReport();
 }
 function rClose(){
  var d=$("cd").value||today(),dr=rows.filter(function(r){return r.date==d});
@@ -141,7 +158,7 @@ function inMonth(){var m=$("mon").value||today().slice(0,7);return rows.filter(f
 function rReport(){
  var mr=inMonth(),S=mr.filter(function(r){return r.type=="sale"}),P=mr.filter(function(r){return r.type=="purchase"});
  var cash=sum(S.filter(function(r){return r.pay=="Cash"})),kn=sum(S.filter(function(r){return r.pay=="KNET"})),ts=cash+kn,tp=sum(P);
- var h='<div class="tot"><span>Sales – Cash</span><span>'+f(cash)+'</span></div><div class="tot"><span>Sales – KNET</span><span>'+f(kn)+'</span></div><div class="tot big"><span>Total sales</span><span>'+f(ts)+'</span></div><div class="tot big"><span>Total purchases</span><span>'+f(tp)+'</span></div><div class="tot"><span>Sales − purchases (rough)</span><span class="'+(ts-tp>=0?"good":"bad")+'">'+f(ts-tp)+'</span></div>';
+ var h='<div class="tiles"><div class="tile"><small>Sales</small><b>'+f(ts)+'</b></div><div class="tile"><small>Purchases</small><b>'+f(tp)+'</b></div></div><div class="tot"><span>Sales – Cash</span><span>'+f(cash)+'</span></div><div class="tot"><span>Sales – KNET</span><span>'+f(kn)+'</span></div><div class="tot big"><span>Total sales</span><span>'+f(ts)+'</span></div><div class="tot big"><span>Total purchases</span><span>'+f(tp)+'</span></div><div class="tot"><span>Sales − purchases (rough)</span><span class="'+(ts-tp>=0?"good":"bad")+'">'+f(ts-tp)+'</span></div>';
  var cats={};S.forEach(function(r){var c=r.cat||"No category";cats[c]=(cats[c]||0)+r.amt});
  var ks=Object.keys(cats);if(ks.length){h+="<h2>Sales by category</h2>";ks.forEach(function(k){h+='<div class="tot"><span>'+esc(k)+'</span><span>'+f(cats[k])+'</span></div>'})}
  $("sum").innerHTML=h;
@@ -240,8 +257,42 @@ $("bk").onclick=function(){cp(JSON.stringify({rows:rows,X:X}),"msg2","Backup cop
 $("rb").onclick=function(){
  try{var b=JSON.parse($("rs").value);if(!b.rows||!confirm("Replace all data on this phone with the backup?"))return;rows=b.rows;X=b.X||X;if(!X.items)X.items=[];if(!X.close)X.close={};st();$("shop").value=X.shop||"";$("rs").value="";$("msg2").textContent="Restored.";render()}catch(e){$("msg2").textContent="That backup text is not valid."}
 };
+function banner(){
+ var n=rows.length,b=X.lb,days=b?Math.floor((new Date(today())-new Date(b))/86400000):null;
+ var show=n>0&&(days===null||days>=7);
+ $("bn").className=show?"card":"card hid";
+ if(show)$("bnt").textContent=days===null?"You have not made a backup yet. If the phone is lost or cleared, all records are lost.":"Last backup was "+days+" days ago.";
+}
+function okB(n){X.lb=today();st();$("msg2").textContent="Backup saved in Downloads: "+n+". Also send it to yourself on WhatsApp.";banner()}
+function doBackup(){
+ var s=JSON.stringify({rows:rows,X:X}),n="shop-backup-"+today()+".json";
+ getDL().then(function(d){
+  if(!d){plain(s,n);okB(n);return}
+  return d.save({filename:n,data:s}).then(function(){okB(n)},function(e){if(!e||e.code!="declined")$("msg2").textContent="Could not save. Use Copy backup text."});
+ }).catch(function(){plain(s,n);okB(n)});
+}
+function restore(t){
+ try{var b=JSON.parse(t);if(!b.rows||!confirm("Replace all data on this phone with the backup ("+b.rows.length+" entries)?"))return;rows=b.rows;X=b.X||X;if(!X.items)X.items=[];if(!X.close)X.close={};st();$("shop").value=X.shop||"";$("title").textContent=X.shop||"Shop Records";theme();$("msg2").textContent="Restored "+rows.length+" entries.";banner();render()}catch(e){$("msg2").textContent="That file or text is not a valid backup."}
+}
+$("bf").onclick=doBackup;$("bnb").onclick=doBackup;
+$("rf").onchange=function(){var fl=this.files[0];if(!fl)return;var r=new FileReader();r.onload=function(){restore(r.result)};r.readAsText(fl)};
+$("rb").onclick=function(){restore($("rs").value);$("rs").value=""};
+var ob=$("bk").onclick;$("bk").onclick=function(){ob();X.lb=today();st();banner()};
+try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
+var PAL={green:["#0f6e56","#3fb592","#06231b"],blue:["#1f5fbf","#7fb0ff","#0a1a33"],purple:["#6b3fa0","#b79cf0","#1e0f33"],orange:["#b4530a","#f0a35e","#331a05"],rose:["#b8325a","#f08ba8","#330a18"]};
+function theme(){
+ var c=X.c&&PAL[X.c]?X.c:"green",m=X.m||"auto",r=document.documentElement;
+ if(m=="auto")r.removeAttribute("data-theme");else r.setAttribute("data-theme",m);
+ var dk=m=="dark"||(m=="auto"&&window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches);
+ r.style.setProperty("--ac",PAL[c][dk?1:0]);r.style.setProperty("--ac2",dk?PAL[c][2]:"#fff");
+ var h="";Object.keys(PAL).forEach(function(k){h+='<button data-c="'+k+'" class="'+(k==c?"on":"")+'" style="background:'+PAL[k][0]+'"></button>'});
+ $("sw").innerHTML=h;$("md").value=m;
+}
+$("sw").onclick=function(e){var c=e.target.getAttribute("data-c");if(c){X.c=c;st();theme()}};
+$("md").onchange=function(){X.m=this.value;st();theme()};
+try{matchMedia("(prefers-color-scheme: dark)").addEventListener("change",theme)}catch(e){}
 $("t-sale").onclick=function(){tab("sale")};$("t-purchase").onclick=function(){tab("purchase")};$("t-close").onclick=function(){tab("close")};$("t-report").onclick=function(){tab("report")};
-rows=ld(K1,[]);X=ld(K2,X);if(!X.close)X.close={};if(!X.items)X.items=[];
+rows=ld(K1,[]);X=ld(K2,X);if(!X.close)X.close={};if(!X.items)X.items=[];theme();
 $("shop").value=X.shop||"";$("title").textContent=X.shop||"Shop Records";
 $("cd").value=today();$("mon").value=today().slice(0,7);tab("sale");
 </script>
