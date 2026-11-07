@@ -46,9 +46,10 @@ h2{font-size:15px;margin:14px 0 4px}
 <div class="chips" id="chips"></div></div>
 <div class="card">
 <div class="row"><div><label>Date</label><input type="date" id="date"></div>
-<div><label>Total amount (KWD)</label><input type="number" id="amt" inputmode="decimal" step="0.001" placeholder="0.000"></div></div>
+<div><label>Price per piece (KWD)</label><input type="number" id="up" inputmode="decimal" step="0.001" placeholder="0.000"></div></div>
 <div class="row"><div><label>Category</label><input id="cat" list="cats" placeholder="Underwear, Socks..."></div>
 <div><label>Quantity</label><input type="number" id="qty" inputmode="numeric" placeholder="1"></div></div>
+<label>Total amount (KWD)</label><input type="number" id="amt" inputmode="decimal" step="0.001" placeholder="0.000">
 <datalist id="cats"><option>Underwear</option><option>Socks</option><option>Vests</option><option>Other</option></datalist>
 <label>Item / note</label><input id="item" placeholder="e.g. black socks">
 <button class="go alt" id="star" style="margin-top:8px">★ Save item for next time</button>
@@ -109,7 +110,7 @@ function tab(t){
  if(t=="sale"||t=="purchase"){type=t;payOpts(t);$("purF").className=t=="purchase"?"":"hid";clearForm()}
  render();
 }
-function clearForm(){editId=null;sel=null;["amt","cat","qty","item","sup","inv"].forEach(function(i){$(i).value=""});$("date").value=today();$("save").textContent="Save "+type;$("cancel").className="go alt hid"}
+function clearForm(){editId=null;sel=null;["up","amt","cat","qty","item","sup","inv"].forEach(function(i){$(i).value=""});$("date").value=today();$("save").textContent="Save "+type;$("cancel").className="go alt hid"}
 function row(r,sh){
  var sub=r.date+" · "+esc(r.pay||"")+(r.cat?" · "+esc(r.cat):"")+(r.qty?" · qty "+r.qty:"")+(r.sup?" · "+esc(r.sup):"")+(r.inv?" #"+esc(r.inv):"");
  return '<div class="it"><div>'+(sh?(r.type=="sale"?"Sale: ":"Buy: "):"")+esc(r.item||r.cat||"(no note)")+'<small>'+sub+'</small></div><div style="text-align:right"><b>'+f(r.amt)+'</b><br><button class="e" onclick="ed('+r.id+')">edit</button><button class="x" onclick="del('+r.id+')">delete</button></div></div>';
@@ -117,7 +118,7 @@ function row(r,sh){
 function del(id){if(!confirm("Delete this entry?"))return;rows=rows.filter(function(r){return r.id!==id});st();render()}
 function ed(id){
  var r=rows.filter(function(x){return x.id===id})[0];if(!r)return;
- tab(r.type);editId=id;$("date").value=r.date;$("amt").value=r.amt;$("cat").value=r.cat||"";$("qty").value=r.qty||"";$("item").value=r.item||"";$("sup").value=r.sup||"";$("inv").value=r.inv||"";$("pay").value=r.pay;
+ tab(r.type);editId=id;$("date").value=r.date;$("amt").value=r.amt;$("up").value=Math.round(r.amt/(r.qty||1)*1000)/1000;$("cat").value=r.cat||"";$("qty").value=r.qty||"";$("item").value=r.item||"";$("sup").value=r.sup||"";$("inv").value=r.inv||"";$("pay").value=r.pay;
  $("save").textContent="Update "+type;$("cancel").className="go alt";window.scrollTo(0,0);
 }
 function render(){
@@ -167,12 +168,15 @@ $("chips").onclick=function(e){
  if(d){if(confirm("Remove "+d+" from saved items?")){X.items=X.items.filter(function(i){return i.n!==d});st();rChips()}return}
  var b=e.target.closest(".chip");if(!b)return;
  var n=b.getAttribute("data-n"),x=X.items.filter(function(i){return i.n===n})[0];if(!x)return;
- sel=n;$("item").value=n;$("cat").value=x.c||"";$("qty").value="";$("amt").value=x[fd(type)]||"";rChips();$("qty").focus();
+ sel=n;$("item").value=n;$("cat").value=x.c||"";$("qty").value="";$("amt").value=x[fd(type)]||"";$("up").value=x[fd(type)]||"";rChips();$("qty").focus();
 };
 $("qty").oninput=function(){
- if(!sel)return;var x=X.items.filter(function(i){return i.n===sel})[0],p=x&&parseFloat(x[fd(type)]);
- if(p)$("amt").value=Math.round(p*(parseFloat($("qty").value)||1)*1000)/1000;
+ var p=parseFloat($("up").value);
+ if(!(p>0)&&sel){var x=X.items.filter(function(i){return i.n===sel})[0];p=x&&parseFloat(x[fd(type)]);if(p>0)$("up").value=p}
+ if(p>0)$("amt").value=Math.round(p*(parseFloat($("qty").value)||1)*1000)/1000;
 };
+$("up").oninput=function(){var p=parseFloat($("up").value);$("amt").value=p>0?Math.round(p*(parseFloat($("qty").value)||1)*1000)/1000:""};
+$("amt").oninput=function(){var a=parseFloat($("amt").value);$("up").value=a>0?Math.round(a/(parseFloat($("qty").value)||1)*1000)/1000:""};
 $("item").oninput=function(){sel=null;rChips()};
 $("iq").oninput=rChips;
 $("mng").onclick=function(){mg=!mg;$("mng").textContent=mg?"done":"manage";rChips()};
