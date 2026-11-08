@@ -91,7 +91,7 @@ input,select,textarea{border:1.5px solid var(--bd);background:var(--card);border
 <label>Total amount (KWD)</label><input type="number" id="amt" inputmode="decimal" step="0.001" placeholder="0.000">
 <datalist id="cats"><option>Underwear</option><option>Socks</option><option>Vests</option><option>Other</option></datalist>
 <label>Item / note</label><input id="item" placeholder="e.g. black socks">
-<div class="note" id="stk"></div><button class="go alt" id="star" style="margin-top:8px">★ Save item for next time</button>
+<input id="ar" dir="rtl" placeholder="الاسم بالعربي (Arabic name, you can edit)" style="margin-top:6px"><div class="note" id="stk"></div><button class="go alt" id="star" style="margin-top:8px">★ Save item for next time</button>
 <label id="payL">Payment</label><select id="pay"></select>
 <div id="purF" class="hid"><div class="row"><div><label>Supplier</label><input id="sup"></div><div><label>Invoice no.</label><input id="inv"></div></div></div>
 <div id="crF" class="hid"><label>Due date (optional)</label><input type="date" id="due"><div id="pnF" class="hid"><div class="row"><div><label>Paid today (KWD)</label><input type="number" id="pn" inputmode="decimal" step="0.001"></div><div><label>Payment method</label><select id="pm"><option>Cash</option><option>KNET</option><option>Bank Transfer</option></select></div></div><div class="row"><div><label>Payment date</label><input type="date" id="pdt"></div><div><label>Supplier receipt / reference no.</label><input id="prf"></div></div></div><div class="note" id="rem"></div></div>
@@ -124,7 +124,7 @@ input,select,textarea{border:1.5px solid var(--bd);background:var(--card);border
 <div class="card"><label>Search entries</label><input id="q" placeholder="item, supplier, invoice, category"><div id="all"></div></div>
 </div>
 <div id="home" class="hid"><div class="tiles" id="hd"></div><div class="card"><b>Last 7 days</b><div id="c1"></div></div><div class="card"><b>Sales: last 6 months</b><div id="c2"></div></div><div class="card"><b>Cash vs KNET (this month)</b><div id="c3"></div></div><div class="card"><b>Top selling items (this month)</b><div id="c4"></div></div><div class="card" id="lowc"></div></div>
-<div id="stock" class="hid"><div class="tiles" id="sk"></div><div class="card"><label>Search items</label><input id="skq" placeholder="Search item or category"><div id="skl"></div><button class="go alt" id="nxl">Export stock to Excel</button></div><div class="card"><b>Add new item</b><label>Name</label><input id="ni"><div class="row"><div><label>Category</label><input id="nc" list="cats"></div><div><label>Opening quantity</label><input id="no" type="number" inputmode="numeric"></div></div><div class="row"><div><label>Cost price</label><input id="ncp" type="number" step="0.001" inputmode="decimal"></div><div><label>Sale price</label><input id="nsp" type="number" step="0.001" inputmode="decimal"></div></div><label>Alert when stock is at or below</label><input id="nmn" type="number" inputmode="numeric"><button class="go" id="nadd">Add item</button></div></div>
+<div id="stock" class="hid"><div class="tiles" id="sk"></div><div class="card"><label>Search items</label><input id="skq" placeholder="Search item or category"><div id="skl"></div><button class="go alt" id="nxl">Export stock to Excel</button></div><div class="card"><b>Add new item</b><label>Name</label><input id="ni"><div class="row"><div><label>Category</label><input id="nc" list="cats"></div><div><label>Opening quantity</label><input id="no" type="number" inputmode="numeric"></div></div><div class="row"><div><label>Cost price</label><input id="ncp" type="number" step="0.001" inputmode="decimal"></div><div><label>Sale price</label><input id="nsp" type="number" step="0.001" inputmode="decimal"></div></div><label>Arabic name</label><input id="nar" dir="rtl"><label>Alert when stock is at or below</label><input id="nmn" type="number" inputmode="numeric"><button class="go" id="nadd">Add item</button></div></div>
 <div id="more" class="hid"><button id="t-sp">💼 Suppliers<span>Credit purchases, payments, receipts</span></button><button id="t-close">🧮 Daily closing<span>Check the cash in the drawer</span></button><button id="t-report">📊 Reports<span>Monthly totals and Excel</span></button><button id="t-set">⚙️ Backup and settings<span>Backup, restore, colour theme</span></button></div>
 <div id="sp" class="hid"><div class="tiles" id="sdash"></div><div class="row"><button class="go" id="sv1">Payables</button><button class="go alt" id="sv2">Receipts</button><button class="go alt" id="sv3">Reports</button></div><div id="v1"></div><div id="v2" class="hid"></div><div id="v3" class="hid"></div><p class="note" id="sm"></p></div>
 <div id="rcp"></div>
@@ -161,15 +161,15 @@ function tab(t){
  if(t=="sale"||t=="purchase"){type=t;payOpts(t);$("purF").className=t=="purchase"?"":"hid";var dd=$("date").value;clearForm();if(dd)$("date").value=dd}
  render();
 }
-function clearForm(){editId=null;sel=null;["up","amt","cat","qty","item","sup","inv"].forEach(function(i){$(i).value=""});$("date").value=today();$("save").textContent="Save "+type;$("cancel").className="go alt hid"}
+function clearForm(){editId=null;sel=null;["up","amt","cat","qty","item","sup","inv","ar"].forEach(function(i){$(i).value=""});$("date").value=today();$("save").textContent="Save "+type;$("cancel").className="go alt hid"}
 function row(r,sh){
  var sub=r.date+" · "+esc(r.pay||"")+(isCr(r)?" ("+stat(r)+", out "+f(outOf(r))+")":"")+(r.cat?" · "+esc(r.cat):"")+(r.qty?" · qty "+r.qty:"")+(r.sup?" · "+esc(r.sup):"")+(r.inv?" #"+esc(r.inv):"");
- return '<div class="it"><div>'+(sh?(r.type=="sale"?"Sale: ":"Buy: "):"")+esc(r.item||r.cat||"(no note)")+'<small>'+sub+'</small></div><div style="text-align:right"><b>'+f(r.amt)+'</b><br><button class="e" onclick="ed('+r.id+')">edit</button><button class="x" onclick="del('+r.id+')">delete</button></div></div>';
+ return '<div class="it"><div>'+(sh?(r.type=="sale"?"Sale: ":"Buy: "):"")+esc(r.item||r.cat||"(no note)")+arTag(r.item)+'<small>'+sub+'</small></div><div style="text-align:right"><b>'+f(r.amt)+'</b><br><button class="e" onclick="ed('+r.id+')">edit</button><button class="x" onclick="del('+r.id+')">delete</button></div></div>';
 }
 function del(id){var rr=rows.filter(function(r){return r.id===id})[0];if(rr&&isCr(rr)&&paidOf(id)>0){alert("This invoice has payments. Reverse the payments first.");return}if(!confirm("Delete this entry?"))return;rows=rows.filter(function(r){return r.id!==id});st();render()}
 function ed(id){
  var r=rows.filter(function(x){return x.id===id})[0];if(!r)return;
- tab(r.type);editId=id;$("date").value=r.date;$("amt").value=r.amt;$("up").value=Math.round(r.amt/(r.qty||1)*1000)/1000;$("cat").value=r.cat||"";$("qty").value=r.qty||"";$("item").value=r.item||"";$("sup").value=r.sup||"";$("inv").value=r.inv||"";$("pay").value=r.pay;$("due").value=r.due||"";crUI();
+ tab(r.type);editId=id;$("date").value=r.date;$("amt").value=r.amt;$("up").value=Math.round(r.amt/(r.qty||1)*1000)/1000;$("cat").value=r.cat||"";$("qty").value=r.qty||"";$("item").value=r.item||"";$("sup").value=r.sup||"";$("inv").value=r.inv||"";$("pay").value=r.pay;$("due").value=r.due||"";arAuto=true;$("ar").value="";autoAr();crUI();
  $("save").textContent="Update "+type;$("cancel").className="go alt";window.scrollTo(0,0);
 }
 function render(){
@@ -203,7 +203,7 @@ function rReport(){
 function rChips(){
  var q=$("iq").value.toLowerCase(),it=X.items.slice().sort(function(a,b){return a.n.localeCompare(b.n)});
  $("iq").className=it.length>8?"":"hid";
- var h="";it.forEach(function(x){if(q&&(x.n+" "+(x.c||"")).toLowerCase().indexOf(q)<0)return;h+='<button class="chip'+(sel===x.n?" on":"")+'" data-n="'+esc(x.n)+'">'+esc(x.n)+(mg?'<i data-d="'+esc(x.n)+'">✕</i>':"")+'</button>'});
+ var h="";it.forEach(function(x){if(q&&(x.n+" "+(x.c||"")).toLowerCase().indexOf(q)<0)return;h+='<button class="chip'+(sel===x.n?" on":"")+'" data-n="'+esc(x.n)+'">'+esc(x.n)+(x.ar?" · "+esc(x.ar):"")+(mg?'<i data-d="'+esc(x.n)+'">✕</i>':"")+'</button>'});
  $("chips").innerHTML=h||'<span class="note">No saved items yet. Save one sale and it appears here.</span>';
 }
 function fd(t){return t=="sale"?"sp":"cp"}
@@ -211,7 +211,7 @@ function upsert(o,force){
  if(!o.item)return;
  var u=Math.round(o.amt/(o.qty||1)*1000)/1000,k=fd(o.type),x=X.items.filter(function(i){return i.n.toLowerCase()==o.item.toLowerCase()})[0];
  if(!x){x={n:o.item,c:o.cat,sp:"",cp:""};X.items.push(x)}
- if(o.cat&&!x.c)x.c=o.cat;
+ if(o.cat&&!x.c)x.c=o.cat;var aa=$("ar").value.trim();if(aa&&o.item.toLowerCase()==$("item").value.trim().toLowerCase())x.ar=aa;
  if(force||!x[k])x[k]=u;
 }
 $("chips").onclick=function(e){
@@ -219,7 +219,7 @@ $("chips").onclick=function(e){
  if(d){if(confirm("Remove "+d+" from saved items?")){X.items=X.items.filter(function(i){return i.n!==d});st();rChips()}return}
  var b=e.target.closest(".chip");if(!b)return;
  var n=b.getAttribute("data-n"),x=X.items.filter(function(i){return i.n===n})[0];if(!x)return;
- sel=n;$("item").value=n;$("cat").value=x.c||"";$("qty").value="";$("amt").value=x[fd(type)]||"";$("up").value=x[fd(type)]||"";rChips();$("qty").focus();
+ sel=n;arAuto=true;$("ar").value="";$("item").value=n;autoAr();$("cat").value=x.c||"";$("qty").value="";$("amt").value=x[fd(type)]||"";$("up").value=x[fd(type)]||"";rChips();$("qty").focus();
 };
 $("qty").oninput=function(){
  var p=parseFloat($("up").value);
@@ -275,7 +275,7 @@ $("xl").onclick=function(){
  var m=$("mon").value||today().slice(0,7),mr=inMonth().sort(function(x,y){return x.date<y.date?-1:1});
  var S=mr.filter(function(r){return r.type=="sale"}),P=mr.filter(function(r){return r.type=="purchase"});
  function pay(a,p){return sum(a.filter(function(r){return r.pay==p}))}
- function aoa(a,sp){var o=[["Date","Category","Item","Qty","Amount KWD","Payment"].concat(sp?["Supplier","Invoice"]:[])];a.forEach(function(r){o.push([r.date,r.cat||"",r.item||"",r.qty||"",r.amt,r.pay||""].concat(sp?[r.sup||"",r.inv||""]:[]))});o.push([]);o.push(["","","","Total",sum(a)]);return o}
+ function aoa(a,sp){var o=[["Date","Category","Item","Arabic name","Qty","Amount KWD","Payment"].concat(sp?["Supplier","Invoice"]:[])];a.forEach(function(r){o.push([r.date,r.cat||"",r.item||"",arOf(r.item),r.qty||"",r.amt,r.pay||""].concat(sp?[r.sup||"",r.inv||""]:[]))});o.push([]);o.push(["","","","Total",sum(a)]);return o}
  var sm=[[X.shop||"Shop"],["Month",m],[],["Sales - Cash",pay(S,"Cash")],["Sales - KNET",pay(S,"KNET")],["Total sales",sum(S)],["Total purchases",sum(P)],["Sales - purchases (rough)",sum(S)-sum(P)],[],["Sales by category","KWD"]];
  var cats={};S.forEach(function(r){var c=r.cat||"No category";cats[c]=(cats[c]||0)+r.amt});Object.keys(cats).forEach(function(k){sm.push([k,cats[k]])});
  var fn=(X.shop||"Shop").replace(/[^\w\- ]/g,"").trim()+" "+m;
@@ -425,17 +425,17 @@ $("item").addEventListener("input",stkNote);
 var skS=null;
 function skList(){var m=stockMap(),q=($("skq").value||"").toLowerCase(),h="";
  Object.keys(m).sort().filter(function(k){return!q||(m[k].x.n+" "+(m[k].x.c||"")).toLowerCase().indexOf(q)>-1}).forEach(function(k){var e=m[k],x=e.x,bad=e.st<=0||isLow(e);
-  h+='<div class="it" data-sk="'+esc(k)+'" style="cursor:pointer"><div>'+esc(x.n)+'<small>'+esc(x.c||"No category")+(x.cp?' · cost '+f(x.cp):'')+(e.lb?' · bought '+e.lb:'')+(isLow(e)?' · LOW':'')+'</small></div><b class="'+(bad?"bad":"good")+'" style="font-size:20px">'+e.st+'</b></div>';
-  if(skS==k)h+='<div class="card" style="margin:6px 0"><div class="row"><div><label>Counted quantity now</label><input id="ecs" type="number" inputmode="numeric" placeholder="'+e.st+'"></div><div><label>Alert at or below</label><input id="emn" type="number" inputmode="numeric" value="'+(x.mn||"")+'"></div></div><div class="row"><div><label>Cost price</label><input id="ecp" type="number" step="0.001" inputmode="decimal" value="'+(x.cp||"")+'"></div><div><label>Sale price</label><input id="esp" type="number" step="0.001" inputmode="decimal" value="'+(x.sp||"")+'"></div></div><p class="note">Bought '+e.b+' · Sold '+e.s+(x.os?' · Opening '+x.os:'')+'. Enter the counted quantity to correct the stock.</p><button class="go" id="esv">Save item</button></div>'});
+  h+='<div class="it" data-sk="'+esc(k)+'" style="cursor:pointer"><div>'+esc(x.n)+arTag(x.n)+'<small>'+esc(x.c||"No category")+(x.cp?' · cost '+f(x.cp):'')+(e.lb?' · bought '+e.lb:'')+(isLow(e)?' · LOW':'')+'</small></div><b class="'+(bad?"bad":"good")+'" style="font-size:20px">'+e.st+'</b></div>';
+  if(skS==k)h+='<div class="card" style="margin:6px 0"><div class="row"><div><label>Counted quantity now</label><input id="ecs" type="number" inputmode="numeric" placeholder="'+e.st+'"></div><div><label>Alert at or below</label><input id="emn" type="number" inputmode="numeric" value="'+(x.mn||"")+'"></div></div><div class="row"><div><label>Cost price</label><input id="ecp" type="number" step="0.001" inputmode="decimal" value="'+(x.cp||"")+'"></div><div><label>Sale price</label><input id="esp" type="number" step="0.001" inputmode="decimal" value="'+(x.sp||"")+'"></div></div><label>Arabic name</label><input id="ear" dir="rtl" value="'+esc(x.ar||"")+'"><p class="note">Bought '+e.b+' · Sold '+e.s+(x.os?' · Opening '+x.os:'')+'. Enter the counted quantity to correct the stock.</p><button class="go" id="esv">Save item</button></div>'});
  $("skl").innerHTML=h||'<p class="note">No items yet. Items are added automatically when you record a sale or purchase, or add one below.</p>'}
 function rStock(){var m=stockMap(),k=Object.keys(m),v=0,lw=0,z=0;k.forEach(function(i){var e=m[i];if(e.st>0&&e.x.cp)v+=e.st*e.x.cp;if(isLow(e))lw++;if(e.st<=0)z++});
  $("sk").innerHTML=tl("Stock value (at cost)",v)+'<div class="tile"><small>Items</small><b>'+k.length+'</b></div><div class="tile"><small>Low stock</small><b>'+lw+'</b></div><div class="tile"><small>Out of stock</small><b>'+z+'</b></div>';skList()}
-function stockAoa(){var m=stockMap(),a=[["Item","Category","Bought","Sold","In stock","Cost price","Sale price","Stock value","Last bought"]];Object.keys(m).sort().forEach(function(k){var e=m[k],x=e.x;a.push([x.n,x.c||"",e.b,e.s,e.st,x.cp||"",x.sp||"",e.st>0&&x.cp?rd(e.st*x.cp):0,e.lb])});return a}
+function stockAoa(){var m=stockMap(),a=[["Item","Arabic name","Category","Bought","Sold","In stock","Cost price","Sale price","Stock value","Last bought"]];Object.keys(m).sort().forEach(function(k){var e=m[k],x=e.x;a.push([x.n,x.ar||"",x.c||"",e.b,e.s,e.st,x.cp||"",x.sp||"",e.st>0&&x.cp?rd(e.st*x.cp):0,e.lb])});return a}
 $("stock").addEventListener("click",function(e){var t=e.target,r=t.closest&&t.closest("[data-sk]");
  if(t.id=="esv"){var m=stockMap(),k=skS,en=m[k],cv=$("ecs").value;if(cv!==""){var d=parseInt(cv)-en.st;if(d)(X.adj=X.adj||[]).push({id:Date.now(),k:k,q:d,date:today(),note:"Stock count"})}
-  en.x.mn=parseInt($("emn").value)||0;en.x.cp=parseFloat($("ecp").value)||"";en.x.sp=parseFloat($("esp").value)||"";st();skS=null;rStock()}
+  en.x.ar=$("ear").value.trim();en.x.mn=parseInt($("emn").value)||0;en.x.cp=parseFloat($("ecp").value)||"";en.x.sp=parseFloat($("esp").value)||"";st();skS=null;rStock()}
  else if(t.id=="nadd"){var n=$("ni").value.trim();if(!n){alert("Enter the item name");return}if(X.items.some(function(i){return i.n.toLowerCase()==n.toLowerCase()})){alert("This item already exists");return}
-  X.items.push({n:n,c:$("nc").value.trim(),sp:parseFloat($("nsp").value)||"",cp:parseFloat($("ncp").value)||"",os:parseInt($("no").value)||0,mn:parseInt($("nmn").value)||0});st();["ni","nc","no","ncp","nsp","nmn"].forEach(function(i){$(i).value=""});rStock()}
+  X.items.push({n:n,ar:$("nar").value.trim(),c:$("nc").value.trim(),sp:parseFloat($("nsp").value)||"",cp:parseFloat($("ncp").value)||"",os:parseInt($("no").value)||0,mn:parseInt($("nmn").value)||0});st();["ni","nar","nc","no","ncp","nsp","nmn"].forEach(function(i){$(i).value=""});rStock()}
  else if(t.id=="nxl")exX("Stock",[["Stock",stockAoa()]]);
  else if(r&&!t.closest(".card .card")&&t.tagName!="INPUT"){skS=skS==r.dataset.sk?null:r.dataset.sk;skList()}});
 $("skq").addEventListener("input",skList);
@@ -464,6 +464,24 @@ function rHome(){var t=today(),m=t.slice(0,7),S=rows.filter(function(r){return r
  $("lowc").innerHTML='<b>Stock alerts</b>'+(low.map(function(k){var e=sm[k];return'<div class="it"><div>'+esc(e.x.n)+'</div><b class="bad">'+e.st+'</b></div>'}).join("")||'<p class="note">All items are stocked well ✓</p>')}
 $("t-home").onclick=function(){tab("home")};$("t-stock").onclick=function(){tab("stock")};$("t-more").onclick=function(){tab("more")};
 try{if("serviceWorker" in navigator&&/^https?:/.test(location.protocol))navigator.serviceWorker.register("sw.js").catch(function(){})}catch(e){}
+var H={};
+function hd(ks,t,g){ks.split(" ").forEach(function(k){H[k]=[t,g]})}
+hd("underwear undergarments","ملابس داخلية","f");hd("socks","جوارب","f");hd("sock","جورب","m");hd("vest vests singlet","فانيلة","f");hd("undershirt","قميص داخلي","m");hd("boxer boxers","بوكسر","m");hd("brief briefs panties panty","سروال داخلي","m");hd("slip","سليب","m");hd("bra","حمالة صدر","f");
+hd("tshirt t-shirt","تي شيرت","m");hd("shirt","قميص","m");hd("blouse","بلوزة","f");hd("pants trousers","بنطلون","m");hd("jeans","جينز","m");hd("shorts","شورت","m");hd("pajama pajamas","بيجامة","f");hd("nightwear sleepwear","ملابس نوم","f");hd("nightgown","قميص نوم","m");hd("dress","فستان","m");hd("skirt","تنورة","f");hd("jacket","جاكيت","m");hd("coat","معطف","m");hd("swimsuit","مايوه","m");hd("bikini","بيكيني","m");hd("abaya","عباءة","f");hd("thobe","ثوب","m");hd("clothes","ملابس","f");hd("sportswear","ملابس رياضية","f");hd("thermal","ملابس حرارية","f");
+hd("scarf","وشاح","m");hd("hijab","حجاب","m");hd("gloves","قفازات","f");hd("glove","قفاز","m");hd("cap hat","قبعة","f");hd("belt","حزام","m");hd("towel","منشفة","f");hd("handkerchief","منديل","m");hd("stockings","جوارب طويلة","f");hd("wallet","محفظة","f");hd("bag","حقيبة","f");hd("handbag","حقيبة يد","f");hd("backpack","حقيبة ظهر","f");hd("glasses","نظارة","f");hd("sunglasses","نظارة شمسية","f");hd("watch","ساعة","f");hd("ring","خاتم","m");
+hd("slippers flipflops flip-flops","شبشب","m");hd("sandals","صندل","m");hd("shoes","حذاء","m");hd("sneakers","أحذية رياضية","f");hd("perfume","عطر","m");hd("soap","صابون","m");hd("toy","لعبة","f");hd("pack","علبة","f");hd("pair","زوج","m");hd("set","طقم","m");
+var I={kids:"أطفال",baby:"أطفال",boys:"أولاد",girls:"بنات",cotton:"قطن"},J={};
+function aj(ks,m,f){ks.split(" ").forEach(function(k){J[k]=[m,f]})}
+aj("men mens","رجالي","رجالية");aj("women womens ladies","نسائي","نسائية");aj("small","صغير","صغيرة");aj("large big","كبير","كبيرة");aj("medium","وسط","وسط");aj("sports sport","رياضي","رياضية");aj("winter","شتوي","شتوية");aj("wool woolen","صوفي","صوفية");aj("formal","رسمي","رسمية");aj("traditional","تقليدي","تقليدية");
+aj("black","أسود","سوداء");aj("white","أبيض","بيضاء");aj("red","أحمر","حمراء");aj("blue","أزرق","زرقاء");aj("green","أخضر","خضراء");aj("yellow","أصفر","صفراء");aj("grey gray","رمادي","رمادية");aj("pink","وردي","وردية");aj("brown","بني","بنية");aj("beige","بيج","بيج");aj("navy","كحلي","كحلية");aj("orange","برتقالي","برتقالية");aj("purple","بنفسجي","بنفسجية");aj("maroon","عنابي","عنابية");aj("cream","كريمي","كريمية");
+var arAuto=true;
+function suggest(n){var h=[],d=[],a=[],u=[],g="m";n.toLowerCase().split(/\s+/).forEach(function(w){if(!w)return;if(H[w]){if(!h.length)g=H[w][1];h.push(H[w][0])}else if(I[w])d.push(I[w]);else if(J[w])a.push(w);else u.push(w)});
+ if(!h.length&&!a.length)return"";return h.concat(d,a.map(function(w){return J[w][g=="f"?1:0]}),u).join(" ")}
+function arOf(n){var x=X.items.filter(function(i){return i.n.toLowerCase()==(n||"").toLowerCase()})[0];return x&&x.ar||""}
+function arTag(n){var a=arOf(n);return a?' <span dir="rtl" style="color:var(--mut);font-size:14px">'+esc(a)+'</span>':""}
+function autoAr(){if(!arAuto&&$("ar").value)return;var n=$("item").value.trim();$("ar").value=arOf(n)||suggest(n);arAuto=true}
+$("item").addEventListener("input",autoAr);$("ar").addEventListener("input",function(){arAuto=!this.value});
+$("ni").addEventListener("input",function(){if(!$("nar").dataset.m)$("nar").value=suggest($("ni").value.trim())});$("nar").addEventListener("input",function(){this.dataset.m=this.value?"1":""});
 $("t-set").onclick=function(){tab("set")};
 $("date").onchange=render;
 $("t-sale").onclick=function(){tab("sale")};$("t-purchase").onclick=function(){tab("purchase")};$("t-close").onclick=function(){tab("close")};$("t-report").onclick=function(){tab("report")};
