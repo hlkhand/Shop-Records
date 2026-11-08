@@ -69,6 +69,40 @@ input,select,textarea{border:1.5px solid var(--bd);background:var(--card);border
 #more button{display:block;width:100%;text-align:left;padding:16px 18px;margin-bottom:10px;background:var(--card);color:var(--tx);border:1.5px solid var(--bd);border-radius:16px;font-size:18px;font-weight:600;box-shadow:0 3px 10px rgba(0,0,0,.08)}#more button span{display:block;font-size:13px;color:var(--mut);font-weight:400;margin-top:2px}
 @media print{body.pr>*:not(#rcp){display:none!important}body.pr #rcp{display:block!important;color:#000;background:#fff;padding:20px}}
 @media print{.tabs,.go,.noprint,label,input,select,textarea,.x,.e{display:none!important}body{background:#fff;color:#000}}
+/* ===== v2 theme: unique look ===== */
+body{padding-bottom:112px;font-feature-settings:"tnum";background-image:radial-gradient(circle at 100% 0,rgba(255,255,255,.0),transparent 40%)}
+h1{padding:18px 20px 16px;border-radius:0 0 28px 28px;font-size:23px;letter-spacing:.2px;background:var(--ac);background:linear-gradient(135deg,var(--ac),color-mix(in srgb,var(--ac) 60%,#000));box-shadow:0 8px 22px rgba(0,0,0,.22)}
+h1::after{content:attr(data-d);display:block;font-size:13px;font-weight:400;opacity:.85;margin-top:3px}
+.card{border-radius:20px;border:1.5px solid var(--bd);box-shadow:0 6px 18px rgba(0,0,0,.07)}
+.card>b:first-child,.card>div>b:first-child{font-size:16px}
+.tile{border-radius:16px;border:1.5px solid var(--bd);border-top:5px solid var(--ac);box-shadow:0 4px 12px rgba(0,0,0,.06)}
+.tile b{font-size:21px}
+.tile:nth-child(4n+2){border-top-color:#2f80ed}.tile:nth-child(4n+3){border-top-color:#d98324}.tile:nth-child(4n){border-top-color:#9b51e0}
+input,select,textarea{border-radius:12px;background:var(--bg)}
+input:focus,select:focus,textarea:focus{outline:0;border-color:var(--ac);box-shadow:0 0 0 3px rgba(127,127,127,.18)}
+.go{border-radius:16px;letter-spacing:.2px}
+.chip{border-radius:999px;padding:9px 14px}
+.tabs{left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom,0px));padding:8px 8px;border:1.5px solid var(--bd);border-radius:26px;box-shadow:0 10px 28px rgba(0,0,0,.22)}
+.tabs button{border-radius:18px}
+.it{padding:11px 0}
+#more button{border-radius:20px;padding:18px 20px}
+.tot.big{font-size:19px}
+@supports (background:color-mix(in srgb,red,blue)){
+ .go:not(.alt){background:linear-gradient(135deg,var(--ac),color-mix(in srgb,var(--ac) 62%,#000))}
+ .tabs button.on{background:color-mix(in srgb,var(--ac) 16%,transparent);color:var(--ac);box-shadow:none}
+ .tabs button.on span{font-weight:700}
+}
+/* ===== v3: slim header, brighter ===== */
+:root{--bg:#f3f8f5;--bd:#cfdad3}
+h1{display:flex;align-items:center;gap:6px;padding:9px 16px;margin:-12px -12px 10px;font-size:18px;border-radius:0 0 18px 18px;box-shadow:0 3px 10px rgba(0,0,0,.12)}
+h1::after{margin:0 0 0 auto;font-size:11px;white-space:nowrap;opacity:.9}
+.card{box-shadow:0 3px 12px rgba(0,0,0,.05)}
+.tile:nth-child(4n+2){border-top-color:#3b82f6}.tile:nth-child(4n+3){border-top-color:#f59e0b}.tile:nth-child(4n){border-top-color:#a855f7}
+.tabs{box-shadow:0 6px 20px rgba(0,0,0,.12)}
+@supports (background:color-mix(in srgb,red,blue)){
+ h1{background:linear-gradient(135deg,var(--ac),color-mix(in srgb,var(--ac) 72%,#fff))}
+ .go:not(.alt){background:linear-gradient(135deg,var(--ac),color-mix(in srgb,var(--ac) 78%,#fff))}
+}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
@@ -106,7 +140,7 @@ input,select,textarea{border:1.5px solid var(--bd);background:var(--card);border
 <label>Day</label><input type="date" id="cd">
 <div class="row"><div><label>Opening cash in drawer</label><input type="number" id="open" inputmode="decimal" step="0.001"></div>
 <div><label>Counted cash now</label><input type="number" id="cnt" inputmode="decimal" step="0.001"></div></div>
-<div id="cs" style="margin-top:10px"></div>
+<div id="cs" style="margin-top:10px"></div><a id="cwa" class="go alt" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none">Share day summary on WhatsApp</a>
 <p class="note">Expected cash = opening cash + cash sales − cash purchases. A difference means a mistake or missing entry.</p>
 </div>
 </div>
@@ -124,15 +158,16 @@ input,select,textarea{border:1.5px solid var(--bd);background:var(--card);border
 <div class="card"><label>Search entries</label><input id="q" placeholder="item, supplier, invoice, category"><div id="all"></div></div>
 </div>
 <div id="home" class="hid"><div class="tiles" id="hd"></div><div class="card"><b>Last 7 days</b><div id="c1"></div></div><div class="card"><b>Sales: last 6 months</b><div id="c2"></div></div><div class="card"><b>Cash vs KNET (this month)</b><div id="c3"></div></div><div class="card"><b>Top selling items (this month)</b><div id="c4"></div></div><div class="card" id="lowc"></div></div>
-<div id="stock" class="hid"><div class="tiles" id="sk"></div><div class="card"><label>Search items</label><input id="skq" placeholder="Search item or category"><div id="skl"></div><button class="go alt" id="nxl">Export stock to Excel</button></div><div class="card"><b>Add new item</b><label>Name</label><input id="ni"><div class="row"><div><label>Category</label><input id="nc" list="cats"></div><div><label>Opening quantity</label><input id="no" type="number" inputmode="numeric"></div></div><div class="row"><div><label>Cost price</label><input id="ncp" type="number" step="0.001" inputmode="decimal"></div><div><label>Sale price</label><input id="nsp" type="number" step="0.001" inputmode="decimal"></div></div><label>Arabic name</label><input id="nar" dir="rtl"><label>Alert when stock is at or below</label><input id="nmn" type="number" inputmode="numeric"><button class="go" id="nadd">Add item</button></div></div>
-<div id="more" class="hid"><button id="t-sp">💼 Suppliers<span>Credit purchases, payments, receipts</span></button><button id="t-close">🧮 Daily closing<span>Check the cash in the drawer</span></button><button id="t-report">📊 Reports<span>Monthly totals and Excel</span></button><button id="t-set">⚙️ Backup and settings<span>Backup, restore, colour theme</span></button></div>
+<div id="stock" class="hid"><div class="tiles" id="sk"></div><div class="card"><label>Search items</label><input id="skq" placeholder="Search item or category"><div id="skl"></div><button class="go alt" id="nxl">Export stock to Excel</button><button class="go alt" id="nro">Make reorder list (low or out of stock)</button><div id="rox" class="hid"><textarea id="rot" rows="6" readonly style="margin-top:8px"></textarea><a id="rwa" class="go alt" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none">Send on WhatsApp</a></div></div><div class="card"><b>Add new item</b><label>Name</label><input id="ni"><div class="row"><div><label>Category</label><input id="nc" list="cats"></div><div><label>Opening quantity</label><input id="no" type="number" inputmode="numeric"></div></div><div class="row"><div><label>Cost price</label><input id="ncp" type="number" step="0.001" inputmode="decimal"></div><div><label>Sale price</label><input id="nsp" type="number" step="0.001" inputmode="decimal"></div></div><label>Arabic name</label><input id="nar" dir="rtl"><label>Alert when stock is at or below</label><input id="nmn" type="number" inputmode="numeric"><button class="go" id="nadd">Add item</button></div></div>
+<div id="more" class="hid"><button id="t-sp">💼 Suppliers<span>Credit purchases, payments, receipts</span></button><button id="t-ex">💸 Expenses<span>Rent, salary, electricity and other costs</span></button><button id="t-close">🧮 Daily closing<span>Check the cash in the drawer</span></button><button id="t-report">📊 Reports<span>Monthly totals and Excel</span></button><button id="t-set">⚙️ Backup and settings<span>Backup, restore, colour theme</span></button></div>
+<div id="ex" class="hid"><div class="card"><b>Add expense</b><div class="row"><div><label>Date</label><input type="date" id="exd"></div><div><label>Amount (KWD)</label><input type="number" id="exa" inputmode="decimal" step="0.001"></div></div><label>Category</label><input id="exc" list="excats" placeholder="Rent, Salary, Electricity..."><datalist id="excats"><option>Rent</option><option>Salary</option><option>Electricity and water</option><option>Transport</option><option>Packaging</option><option>Internet and phone</option><option>Other</option></datalist><div class="row"><div><label>Paid by</label><select id="exp"><option>Cash</option><option>KNET</option><option>Bank Transfer</option></select></div><div><label>Note</label><input id="exn"></div></div><button class="go" id="exs">Save expense</button></div><div class="card"><label>Month</label><input type="month" id="exm"><div id="exl"></div></div></div>
 <div id="sp" class="hid"><div class="tiles" id="sdash"></div><div class="row"><button class="go" id="sv1">Payables</button><button class="go alt" id="sv2">Receipts</button><button class="go alt" id="sv3">Reports</button></div><div id="v1"></div><div id="v2" class="hid"></div><div id="v3" class="hid"></div><p class="note" id="sm"></p></div>
 <div id="rcp"></div>
 <div id="set" class="hid">
 <div class="card noprint">
 <b>Settings and backup</b>
 <label>Shop name (shown on report)</label><input id="shop">
-<label>Colour theme</label><div class="sw" id="sw"></div>
+<label>Remind me to back up</label><select id="bd"><option value="1">Every day</option><option value="3">Every 3 days</option><option value="7">Every week</option></select><label>Colour theme</label><div class="sw" id="sw"></div>
 <label>Mode</label><select id="md"><option value="auto">Automatic</option><option value="light">Light</option><option value="dark">Dark</option></select>
 <button class="go" id="bf">Save backup file to phone</button>
 <label>Restore from a backup file</label><input type="file" id="rf">
@@ -156,8 +191,8 @@ function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return
 function sum(a){return a.reduce(function(s,r){return s+r.amt},0)}
 function payOpts(t){$("pay").innerHTML=(t=="sale"?["Cash","KNET"]:["Cash","KNET","Bank transfer","Credit (unpaid)","Partial Payment"]).map(function(o){return"<option>"+o+"</option>"}).join("")}
 function tab(t){
- now=t;var sb=["sp","close","report","set"].indexOf(t)>-1;["home","sale","purchase","stock","more"].forEach(function(x){$("t-"+x).className=(x==t||(x=="more"&&sb))?"on":""});
- $("entry").className=(t=="sale"||t=="purchase")?"":"hid";$("close").className=t=="close"?"":"hid";$("report").className=t=="report"?"":"hid";$("set").className=t=="set"?"":"hid";$("sp").className=t=="sp"?"":"hid";$("home").className=t=="home"?"":"hid";$("stock").className=t=="stock"?"":"hid";$("more").className=t=="more"?"":"hid";
+ now=t;var sb=["sp","ex","close","report","set"].indexOf(t)>-1;["home","sale","purchase","stock","more"].forEach(function(x){$("t-"+x).className=(x==t||(x=="more"&&sb))?"on":""});
+ $("entry").className=(t=="sale"||t=="purchase")?"":"hid";$("close").className=t=="close"?"":"hid";$("report").className=t=="report"?"":"hid";$("set").className=t=="set"?"":"hid";$("sp").className=t=="sp"?"":"hid";$("ex").className=t=="ex"?"":"hid";$("home").className=t=="home"?"":"hid";$("stock").className=t=="stock"?"":"hid";$("more").className=t=="more"?"":"hid";
  if(t=="sale"||t=="purchase"){type=t;payOpts(t);$("purF").className=t=="purchase"?"":"hid";var dd=$("date").value;clearForm();if(dd)$("date").value=dd}
  render();
 }
@@ -177,16 +212,16 @@ function render(){
  var sd=$("date").value||t,td=rows.filter(function(r){return r.type==type&&r.date==sd});
  $("lt").textContent=(sd==t?"Today's ":sd+" ")+type+"s: "+f(sum(td))+" KWD";
  $("list").innerHTML=td.map(function(r){return row(r)}).join("")||'<p class="note">Nothing yet on this date.</p>';
- banner();if(now=="sale"||now=="purchase")rChips();crUI();if(now=="home")rHome();if(now=="stock")rStock();if(now=="close")rClose();if(now=="sp")rSp();if(now=="report")rReport();
+ banner();if(now=="sale"||now=="purchase")rChips();crUI();if(now=="home")rHome();if(now=="stock")rStock();if(now=="ex")rEx();if(now=="close")rClose();if(now=="sp")rSp();if(now=="report")rReport();
 }
 function rClose(){
  var d=$("cd").value||today(),dr=rows.filter(function(r){return r.date==d});
- var cs=sum(dr.filter(function(r){return r.type=="sale"&&r.pay=="Cash"})),ks=sum(dr.filter(function(r){return r.type=="sale"&&r.pay=="KNET"})),cp=sum(dr.filter(function(r){return r.type=="purchase"&&r.pay=="Cash"}))+sum(PY().filter(function(p){return p.date==d&&p.m=="Cash"}));
+ var cs=sum(dr.filter(function(r){return r.type=="sale"&&r.pay=="Cash"})),ks=sum(dr.filter(function(r){return r.type=="sale"&&r.pay=="KNET"})),cp=sum(dr.filter(function(r){return r.type=="purchase"&&r.pay=="Cash"}))+sum(PY().filter(function(p){return p.date==d&&p.m=="Cash"}))+sum((X.exp||[]).filter(function(e){return e.date==d&&e.pay=="Cash"}));
  var c=X.close[d]||{};if(document.activeElement!==$("open")&&c.open!=null)$("open").value=c.open;if(document.activeElement!==$("cnt")&&c.cnt!=null)$("cnt").value=c.cnt;
  var op=parseFloat($("open").value)||0,cn=parseFloat($("cnt").value),ex=op+cs-cp,h="";
- h+='<div class="tot"><span>Cash sales</span><span>'+f(cs)+'</span></div><div class="tot"><span>KNET sales</span><span>'+f(ks)+'</span></div><div class="tot big"><span>Total sales</span><span>'+f(cs+ks)+'</span></div><div class="tot"><span>Cash purchases + cash supplier payments</span><span>'+f(cp)+'</span></div><div class="tot big"><span>Expected cash</span><span>'+f(ex)+'</span></div>';
+ h+='<div class="tot"><span>Cash sales</span><span>'+f(cs)+'</span></div><div class="tot"><span>KNET sales</span><span>'+f(ks)+'</span></div><div class="tot big"><span>Total sales</span><span>'+f(cs+ks)+'</span></div><div class="tot"><span>Cash out (purchases, supplier payments, expenses)</span><span>'+f(cp)+'</span></div><div class="tot big"><span>Expected cash</span><span>'+f(ex)+'</span></div>';
  if(!isNaN(cn)){var df=cn-ex;h+='<div class="tot big '+(Math.abs(df)<0.0005?"good":"bad")+'"><span>Difference</span><span>'+(df>0?"+":"")+f(df)+'</span></div>'}
- $("cs").innerHTML=h;
+ $("cs").innerHTML=h;$("cwa").href="https://wa.me/?text="+encodeURIComponent((X.shop||"Shop")+" – "+d+"\nSales cash: "+f(cs)+"\nSales KNET: "+f(ks)+"\nTotal sales: "+f(cs+ks)+"\nCash out: "+f(cp)+"\nExpected cash: "+f(ex)+(isNaN(cn)?"":"\nCounted cash: "+f(cn)));
 }
 function inMonth(){var m=$("mon").value||today().slice(0,7);return rows.filter(function(r){return r.date.slice(0,7)==m})}
 function rReport(){
@@ -195,7 +230,7 @@ function rReport(){
  var h='<div class="tiles"><div class="tile"><small>Sales</small><b>'+f(ts)+'</b></div><div class="tile"><small>Purchases</small><b>'+f(tp)+'</b></div></div><div class="tot"><span>Sales – Cash</span><span>'+f(cash)+'</span></div><div class="tot"><span>Sales – KNET</span><span>'+f(kn)+'</span></div><div class="tot big"><span>Total sales</span><span>'+f(ts)+'</span></div><div class="tot big"><span>Total purchases</span><span>'+f(tp)+'</span></div><div class="tot"><span>Sales − purchases (rough)</span><span class="'+(ts-tp>=0?"good":"bad")+'">'+f(ts-tp)+'</span></div>';
  var cats={};S.forEach(function(r){var c=r.cat||"No category";cats[c]=(cats[c]||0)+r.amt});
  var ks=Object.keys(cats);if(ks.length){h+="<h2>Sales by category</h2>";ks.forEach(function(k){h+='<div class="tot"><span>'+esc(k)+'</span><span>'+f(cats[k])+'</span></div>'})}
- var mm=$("mon").value||today().slice(0,7);h+='<div class="tot"><span>Supplier payments (cash out)</span><span>'+f(sum(PY().filter(function(p){return p.date.slice(0,7)==mm})))+'</span></div><div class="tot"><span>Owed to suppliers (total)</span><span>'+f(sups().reduce(function(a,x){return a+x.o},0))+'</span></div>';$("sum").innerHTML=h;
+ var mm=$("mon").value||today().slice(0,7);h+='<div class="tot"><span>Supplier payments (cash out)</span><span>'+f(sum(PY().filter(function(p){return p.date.slice(0,7)==mm})))+'</span></div><div class="tot"><span>Expenses</span><span>'+f(sum((X.exp||[]).filter(function(e){return e.date.slice(0,7)==mm})))+'</span></div><div class="tot"><span>Owed to suppliers (total)</span><span>'+f(sups().reduce(function(a,x){return a+x.o},0))+'</span></div>';$("sum").innerHTML=h;
  var q=$("q").value.toLowerCase();
  var a=mr.filter(function(r){return!q||[r.item,r.sup,r.inv,r.cat].join(" ").toLowerCase().indexOf(q)>-1}).sort(function(x,y){return x.date<y.date?1:-1});
  $("all").innerHTML=a.map(function(r){return row(r,1)}).join("")||'<p class="note">No entries.</p>';
@@ -301,7 +336,7 @@ $("rb").onclick=function(){
 };
 function banner(){
  var n=rows.length,b=X.lb,days=b?Math.floor((new Date(today())-new Date(b))/86400000):null;
- var show=n>0&&(days===null||days>=7);
+ var show=n>0&&(days===null||days>=(X.bd||1));
  $("bn").className=show?"card":"card hid";
  if(show)$("bnt").textContent=days===null?"You have not made a backup yet. If the phone is lost or cleared, all records are lost.":"Last backup was "+days+" days ago.";
 }
@@ -321,14 +356,14 @@ $("rf").onchange=function(){var fl=this.files[0];if(!fl)return;var r=new FileRea
 $("rb").onclick=function(){restore($("rs").value);$("rs").value=""};
 var ob=$("bk").onclick;$("bk").onclick=function(){ob();X.lb=today();st();banner()};
 try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
-var PAL={green:["#0f6e56","#3fb592","#06231b"],blue:["#1f5fbf","#7fb0ff","#0a1a33"],purple:["#6b3fa0","#b79cf0","#1e0f33"],orange:["#b4530a","#f0a35e","#331a05"],rose:["#b8325a","#f08ba8","#330a18"]};
+var PAL={green:["#0e9f78","#3fb592","#06231b"],blue:["#2563eb","#7fb0ff","#0a1a33"],purple:["#7c3aed","#b79cf0","#1e0f33"],orange:["#ea6a0a","#f0a35e","#331a05"],rose:["#e11d58","#f08ba8","#330a18"]};
 function theme(){
  var c=X.c&&PAL[X.c]?X.c:"green",m=X.m||"auto",r=document.documentElement;
  if(m=="auto")r.removeAttribute("data-theme");else r.setAttribute("data-theme",m);
  var dk=m=="dark"||(m=="auto"&&window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches);
  r.style.setProperty("--ac",PAL[c][dk?1:0]);r.style.setProperty("--ac2",dk?PAL[c][2]:"#fff");
  var h="";Object.keys(PAL).forEach(function(k){h+='<button data-c="'+k+'" class="'+(k==c?"on":"")+'" style="background:'+PAL[k][0]+'"></button>'});
- $("sw").innerHTML=h;$("md").value=m;
+ $("sw").innerHTML=h;$("md").value=m;$("bd").value=X.bd||1;
 }
 $("sw").onclick=function(e){var c=e.target.getAttribute("data-c");if(c){X.c=c;st();theme()}};
 $("md").onchange=function(){X.m=this.value;st();theme()};
@@ -436,7 +471,7 @@ $("stock").addEventListener("click",function(e){var t=e.target,r=t.closest&&t.cl
   en.x.ar=$("ear").value.trim();en.x.mn=parseInt($("emn").value)||0;en.x.cp=parseFloat($("ecp").value)||"";en.x.sp=parseFloat($("esp").value)||"";st();skS=null;rStock()}
  else if(t.id=="nadd"){var n=$("ni").value.trim();if(!n){alert("Enter the item name");return}if(X.items.some(function(i){return i.n.toLowerCase()==n.toLowerCase()})){alert("This item already exists");return}
   X.items.push({n:n,ar:$("nar").value.trim(),c:$("nc").value.trim(),sp:parseFloat($("nsp").value)||"",cp:parseFloat($("ncp").value)||"",os:parseInt($("no").value)||0,mn:parseInt($("nmn").value)||0});st();["ni","nar","nc","no","ncp","nsp","nmn"].forEach(function(i){$(i).value=""});rStock()}
- else if(t.id=="nxl")exX("Stock",[["Stock",stockAoa()]]);
+ else if(t.id=="nxl")exX("Stock",[["Stock",stockAoa()]]);else if(t.id=="nro")reorder();
  else if(r&&!t.closest(".card .card")&&t.tagName!="INPUT"){skS=skS==r.dataset.sk?null:r.dataset.sk;skList()}});
 $("skq").addEventListener("input",skList);
 function dAgo(n){var d=new Date();d.setDate(d.getDate()-n);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
@@ -451,8 +486,8 @@ function donut(el,parts){var tot=0,C=2*Math.PI*40,o=0,h='<circle cx="60" cy="60"
 function rHome(){var t=today(),m=t.slice(0,7),S=rows.filter(function(r){return r.type=="sale"}),P=rows.filter(function(r){return r.type=="purchase"}),inM=function(r){return r.date.slice(0,7)==m},sm=stockMap(),pf=0,sv=0,lw=0;
  S.filter(inM).forEach(function(r){var e=sm[(r.item||"").toLowerCase()];if(e&&e.x.cp)pf+=r.amt-qOf(r)*e.x.cp});
  Object.keys(sm).forEach(function(k){var e=sm[k];if(e.st>0&&e.x.cp)sv+=e.st*e.x.cp;if(isLow(e))lw++});
- var ow=0,od=0;sups().forEach(function(s){ow+=s.o;od+=s.od});
- $("hd").innerHTML=tl("Today's sales",sum(S.filter(function(r){return r.date==t})))+tl("Sales this month",sum(S.filter(inM)))+tl("Purchases this month",sum(P.filter(inM)))+tl("Est. profit (items with cost)",pf)+tl("Stock value",sv)+'<div class="tile"><small>Low stock items</small><b>'+lw+'</b></div>'+tl("Owed to suppliers",ow)+tl("Overdue to suppliers",od);
+ var ex=sum((X.exp||[]).filter(function(e){return e.date.slice(0,7)==m})),ow=0,od=0;sups().forEach(function(s){ow+=s.o;od+=s.od});
+ $("hd").innerHTML=tl("Today's sales",sum(S.filter(function(r){return r.date==t})))+tl("Sales this month",sum(S.filter(inM)))+tl("Purchases this month",sum(P.filter(inM)))+tl("Gross profit (est.)",pf)+tl("Expenses this month",ex)+tl("Net profit (est.)",pf-ex)+tl("Stock value",sv)+'<div class="tile"><small>Low stock items</small><b>'+lw+'</b></div>'+tl("Owed to suppliers",ow)+tl("Overdue to suppliers",od);
  var L=[],A=[],B=[],i;for(i=6;i>=0;i--){var d=dAgo(i);L.push(new Date(d+"T12:00:00").toLocaleDateString("en",{weekday:"short"}));A.push(sum(S.filter(function(r){return r.date==d})));B.push(sum(P.filter(function(r){return r.date==d})))}
  barChart($("c1"),L,[{n:"Sales",v:A,c:"var(--ac)"},{n:"Purchases",v:B,c:"#d98324"}]);
  var ML=[],MV=[],now=new Date();for(i=5;i>=0;i--){var dt=new Date(now.getFullYear(),now.getMonth()-i,1),k=dt.getFullYear()+"-"+String(dt.getMonth()+1).padStart(2,"0");ML.push(dt.toLocaleDateString("en",{month:"short"}));MV.push(sum(S.filter(function(r){return r.date.slice(0,7)==k})))}
@@ -482,10 +517,22 @@ function arTag(n){var a=arOf(n);return a?' <span dir="rtl" style="color:var(--mu
 function autoAr(){if(!arAuto&&$("ar").value)return;var n=$("item").value.trim();$("ar").value=arOf(n)||suggest(n);arAuto=true}
 $("item").addEventListener("input",autoAr);$("ar").addEventListener("input",function(){arAuto=!this.value});
 $("ni").addEventListener("input",function(){if(!$("nar").dataset.m)$("nar").value=suggest($("ni").value.trim())});$("nar").addEventListener("input",function(){this.dataset.m=this.value?"1":""});
+function rEx(){if(!$("exd").value)$("exd").value=today();if(!$("exm").value)$("exm").value=today().slice(0,7);
+ var m=$("exm").value,L=(X.exp||[]).filter(function(e){return e.date.slice(0,7)==m}).sort(byDate),cat={};L.forEach(function(e){cat[e.cat]=(cat[e.cat]||0)+e.amt});
+ $("exl").innerHTML='<div class="tot big"><span>Total expenses</span><span>'+f(sum(L))+'</span></div>'+Object.keys(cat).map(function(k){return'<div class="tot"><span>'+esc(k)+'</span><span>'+f(cat[k])+'</span></div>'}).join("")+'<h2>Entries</h2>'+(L.map(function(e){return'<div class="it"><div>'+esc(e.cat)+'<small>'+e.date+' · '+esc(e.pay)+(e.note?' · '+esc(e.note):'')+'</small></div><div style="text-align:right"><b>'+f(e.amt)+'</b><br><button class="x" data-xd="'+e.id+'">delete</button></div></div>'}).join("")||'<p class="note">No expenses this month.</p>')}
+$("ex").addEventListener("click",function(e){var t=e.target;
+ if(t.id=="exs"){var a=parseFloat($("exa").value),c=$("exc").value.trim();if(!(a>0)||!c){alert("Enter the category and the amount");return}
+  (X.exp=X.exp||[]).push({id:Date.now(),date:$("exd").value||today(),cat:c,amt:a,note:$("exn").value.trim(),pay:$("exp").value});st();$("exa").value="";$("exn").value="";rEx()}
+ else if(t.dataset&&t.dataset.xd&&confirm("Delete this expense?")){X.exp=X.exp.filter(function(x){return x.id!==+t.dataset.xd});st();rEx()}});
+$("ex").addEventListener("input",function(e){if(e.target.id=="exm")rEx()});
+function reorder(){var m=stockMap(),L=Object.keys(m).sort().filter(function(k){return isLow(m[k])||(m[k].st<=0&&(m[k].b>0||m[k].x.os>0))}).map(function(k){return"- "+m[k].x.n+(m[k].x.ar?" ("+m[k].x.ar+")":"")+": in stock "+m[k].st});
+ var t=L.length?(X.shop||"Shop")+" – reorder list "+today()+"\n"+L.join("\n"):"No items need reordering now.";$("rot").value=t;$("rox").className="";$("rwa").href="https://wa.me/?text="+encodeURIComponent(t)}
+$("bd").onchange=function(){X.bd=+this.value;st();banner()};
+$("t-ex").onclick=function(){tab("ex")};
 $("t-set").onclick=function(){tab("set")};
 $("date").onchange=render;
 $("t-sale").onclick=function(){tab("sale")};$("t-purchase").onclick=function(){tab("purchase")};$("t-close").onclick=function(){tab("close")};$("t-report").onclick=function(){tab("report")};
-rows=ld(K1,[]);X=ld(K2,X);if(!X.close)X.close={};if(!X.items)X.items=[];theme();
+rows=ld(K1,[]);X=ld(K2,X);if(!X.close)X.close={};if(!X.items)X.items=[];theme();$("title").setAttribute("data-d",new Date().toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"}));
 $("shop").value=X.shop||"";$("title").textContent=X.shop||"Shop Records";
 $("cd").value=today();$("mon").value=today().slice(0,7);tab("home");
 </script>
